@@ -9,6 +9,7 @@ public class Blocks : MonoBehaviour
     public List<Block> blocksList;
     public Dictionary<int, Block> blocks;
     public Texture2DArray opaqueTexture2DArray;
+    public Texture2DArray alphaClipTexture2DArray;
     public Texture2DArray transTexture2DArray;
     public int maxTextures = 32;
 
@@ -17,9 +18,11 @@ public class Blocks : MonoBehaviour
         _instance = this;
         blocks = new Dictionary<int, Block>();
         opaqueTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT1, false);
+        alphaClipTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT5, false);
         transTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT5, false);
         var opaqueTextureCount = 0;
         var transTextureCount = 0;
+        var alphaClipTextureCount = 0;
         
         for (int i=0; i<blocksList.Count; i++)
         {
@@ -32,6 +35,12 @@ public class Blocks : MonoBehaviour
                 Graphics.CopyTexture(block.texture, 0, 0, opaqueTexture2DArray, opaqueTextureCount, 0);
                 block.textureArrayIndex = opaqueTextureCount;
                 opaqueTextureCount++;
+            }
+            else if (block.texture.format == TextureFormat.DXT5 && block.type == BlockType.AlphaClip)
+            {
+                Graphics.CopyTexture(block.texture, 0, 0, alphaClipTexture2DArray, alphaClipTextureCount, 0);
+                block.textureArrayIndex = alphaClipTextureCount;
+                alphaClipTextureCount++;
             }
             else if (block.texture.format == TextureFormat.DXT5 && block.type == BlockType.Transparent)
             {

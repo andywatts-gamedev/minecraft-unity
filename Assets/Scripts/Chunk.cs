@@ -17,7 +17,8 @@ public class Chunk : MonoBehaviour
         ComputeFaces();
         ComputeMesh();
         GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Blocks.Instance.opaqueTexture2DArray);
-        GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Blocks.Instance.transTexture2DArray);
+        GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Blocks.Instance.alphaClipTexture2DArray);
+        GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Blocks.Instance.transTexture2DArray);
     }
 
     private void ComputeFaces()
@@ -56,6 +57,7 @@ public class Chunk : MonoBehaviour
         var vertices = meshData.GetVertexData<MyVertex>();
         var opaqueTriangles = new NativeList<int>(Allocator.Temp);
         var transparentTriangles = new NativeList<int>(Allocator.Temp);
+        var alphaClipTriangles = new NativeList<int>(Allocator.Temp);
 
         // vertices and triangles
         for (var i = 0; i < faces.Length; i++)
@@ -78,7 +80,24 @@ public class Chunk : MonoBehaviour
             half h0 = half(0f), h1 = half(1f);
             var vertexIndex = i * 4;
             
-            var triangles = face.BlockType == BlockType.Opaque ? opaqueTriangles : transparentTriangles;
+            
+            // case statement on face.BlockType to set triangles
+            NativeList<int> triangles;
+            switch (face.BlockType)
+            {
+                case BlockType.Opaque:
+                    triangles = opaqueTriangles;
+                    break;
+                case BlockType.Transparent:
+                    triangles = transparentTriangles;
+                    break;
+                case BlockType.AlphaClip:
+                    triangles = alphaClipTriangles;
+                    break;
+                default:
+                    triangles = opaqueTriangles;
+                    break;
+            }
             
             if (side == Side.East)
             {
@@ -160,20 +179,23 @@ public class Chunk : MonoBehaviour
             }
         }
 
-        // Mesh
-        meshData.subMeshCount = 2;
-        
-        // Concat opaqueTriangles and transparentTriangles into indexBuffer
-        meshData.SetIndexBufferParams(opaqueTriangles.Length + transparentTriangles.Length, IndexFormat.UInt16);
+        // Mesh opaque, transparent, and alphaClip triangles
+        meshData.SetIndexBufferParams(opaqueTriangles.Length + alphaClipTriangles.Length + transparentTriangles.Length, IndexFormat.UInt16);
         var indexBuffer = meshData.GetIndexData<ushort>();
         for (var i = 0; i < opaqueTriangles.Length; i++)
             indexBuffer[i] = (ushort) opaqueTriangles[i];
+        for (var i = 0; i < alphaClipTriangles.Length; i++)
+            indexBuffer[opaqueTriangles.Length +  i] = (ushort) alphaClipTriangles[i];
         for (var i = 0; i < transparentTriangles.Length; i++)
-            indexBuffer[opaqueTriangles.Length + i] = (ushort) transparentTriangles[i];
+            indexBuffer[opaqueTriangles.Length + alphaClipTriangles.Length + i] = (ushort) transparentTriangles[i];
         
-        // Set submeshes
+        
+        
+        // Set subMeshes
+        meshData.subMeshCount = 3;
         meshData.SetSubMesh(0, new SubMeshDescriptor(0, opaqueTriangles.Length));
-        meshData.SetSubMesh(1, new SubMeshDescriptor(opaqueTriangles.Length, transparentTriangles.Length));
+        meshData.SetSubMesh(1, new SubMeshDescriptor(opaqueTriangles.Length, alphaClipTriangles.Length));
+        meshData.SetSubMesh(2, new SubMeshDescriptor(opaqueTriangles.Length + alphaClipTriangles.Length, transparentTriangles.Length));
         
         
         var mesh = new Mesh();
@@ -202,7 +224,7 @@ public class Chunk : MonoBehaviour
         return blockType switch
         {
             BlockType.Opaque => otherBlockType != BlockType.Opaque,
-            // BlockType.Cutout => otherBlockType != BlockType.Opaque,
+            BlockType.AlphaClip => otherBlockType != BlockType.Opaque,
             BlockType.Transparent => otherBlockType != BlockType.Opaque && otherBlockType != BlockType.Transparent,
             _ => false
         };

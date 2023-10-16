@@ -412,7 +412,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 097c5b76dcfc64e33b1f9ce0d3463df0, type: 2}
   - {fileID: 11400000, guid: bb840ae2509984a70b8bbede79a2f948, type: 2}
   - {fileID: 11400000, guid: 2841a00304fa441138b8df965024ca28, type: 2}
-  texture2DArray: {fileID: 0}
+  opaqueTexture2DArray: {fileID: 0}
+  alphaClipTexture2DArray: {fileID: 0}
+  transTexture2DArray: {fileID: 0}
+  maxTextures: 32
 --- !u!4 &671143785
 Transform:
   m_ObjectHideFlags: 0
@@ -527,10 +530,7 @@ MonoBehaviour:
     x: 1
     y: 1
     z: 1
-  voxels: 01000000
-  blockLights: 
-  skyLights: 
-  visibleFacesIndexes: 
+  voxels: 03000000
 --- !u!33 &1110756816
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -559,8 +559,9 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ee9cef4da057c449c807af70219b7366, type: 2}
-  - {fileID: 2100000, guid: 26bc95f16476945ff831e4d3cf9dcba2, type: 2}
+  - {fileID: -876546973899608171, guid: fb345bbda0b3b472db336eacdd823822, type: 3}
+  - {fileID: -876546973899608171, guid: 01d218e876cfd400eb25e60fc1e66fea, type: 3}
+  - {fileID: -876546973899608171, guid: 71adcf66195cf4ea3961ec31e3e1d028, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

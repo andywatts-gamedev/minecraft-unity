@@ -8,5 +8,5 @@ public class Block : ScriptableObject
     public string name;
     public BlockType type;
     public Texture2D texture;
-    public int textureArrayIndex;
+    public ushort textureArrayIndex;
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
@@ -8,17 +9,32 @@ using static Unity.Mathematics.math;
 public class Chunk : MonoBehaviour
 {
     public int3 dims;
-    public List<int> voxels;
+    // public List<int> voxels;
+    public NativeArray<ushort> voxels;
     public NativeArray<Face> faces;
-    // public Mesh mesh;
+    public ChunkType chunkType;
             
     private void Start()
     {
+        ComputeVoxels();
         ComputeFaces();
         ComputeMesh();
         GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Blocks.Instance.opaqueTexture2DArray);
         GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Blocks.Instance.alphaClipTexture2DArray);
         GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Blocks.Instance.transTexture2DArray);
+    }
+
+    private void ComputeVoxels()
+    {
+        voxels = new NativeArray<ushort>(dims.x * dims.y * dims.z, Allocator.Temp);
+        for (var i = 0; i < voxels.Length; i++)
+        {
+            var xyz = IndexToXYZ(i, dims);
+            if (chunkType == ChunkType.Flat)
+                voxels[i] = (ushort)(xyz.y < 1 ? 1 : 0);  // Assume 1 is stone and 0 is air
+            else
+                voxels[i] = 1;
+        }
     }
 
     private void ComputeFaces()
@@ -29,188 +45,153 @@ public class Chunk : MonoBehaviour
         {
             var side = i % 6;
             var voxelIndex = i / 6; // Calculate the voxel index from the job index
-            var voxelXyz = new int3(voxelIndex % dims.y, voxelIndex / (dims.y * dims.z), voxelIndex / dims.y % dims.z); // YZX => XYZ
+            var voxelXyz = IndexToXYZ(voxelIndex, dims);
             var voxel = voxels[voxelIndex];
+            // Debug.Log($"voxel {voxelXyz}");
 
             var adjacentVoxelXyz = voxelXyz + Offsets[side];
-            var adjacentVoxelIndex = GetYZXIndex(adjacentVoxelXyz, dims);
+            var adjacentVoxelIndex = XYZToIndex(adjacentVoxelXyz, dims);
             var adjacentIsWithinBounds = IsWithinBounds(adjacentVoxelXyz, dims);
-            var adjacentVoxel = adjacentIsWithinBounds ? voxels[adjacentVoxelIndex] : 0;
+            var adjacentVoxel = (ushort)(adjacentIsWithinBounds ? voxels[adjacentVoxelIndex] : 0);
 
             if (IsFaceVisible(Blocks.Instance.blocks[voxel].type, Blocks.Instance.blocks[adjacentVoxel].type))
+            {
+                // Debug.Log($"Got face {side} for voxel {voxel} at {voxelXyz}");
                 faces[i] = new Face {TextureIndex = Blocks.Instance.blocks[voxel].textureArrayIndex, BlockType = Blocks.Instance.blocks[voxel].type};
+            }
         }
+        Debug.Log($"Got {faces.Count(f => !f.Equals(default(Face)))} faces");
     }
 
     private void ComputeMesh()
     {
-        var meshDataArray = Mesh.AllocateWritableMeshData(1);
-        var meshData = meshDataArray[0];
-        
-        meshData.SetVertexBufferParams(faces.Length * 4, new[]
-        {
-            new VertexAttributeDescriptor(VertexAttribute.Position),
-            new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4),
-            new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2)
-        });
-       
-        var vertices = meshData.GetVertexData<MyVertex>();
-        var opaqueTriangles = new NativeList<int>(Allocator.Temp);
-        var transparentTriangles = new NativeList<int>(Allocator.Temp);
-        var alphaClipTriangles = new NativeList<int>(Allocator.Temp);
+        var vertices = new NativeList<MyVertex>(Allocator.Temp);
+        var triangles = new NativeList<int>(Allocator.Temp);
 
-        // vertices and triangles
+        var faceCount = 0;
         for (var i = 0; i < faces.Length; i++)
         {
             if (faces[i].Equals(default(Face)))
                 continue;
-                
-            var frontOrBack = i % 2;
-            var voxelIndex = i / 6; // Calculate the voxel index from the job index
-            var side = (Side) (i % 6);
-            var voxelXyz = new int3(voxelIndex % dims.y, voxelIndex / (dims.y * dims.z), voxelIndex / dims.y % dims.z); // YZX => XYZ
 
-            // 2B textureIndex 
-            // 4b voxelBlockLight; 4b skyLight
-            var face = faces[i]; // Get the face using the index
-            var textureIndexHighByte = (byte) ((face.TextureIndex & 0xFF00) >> 8);
-            var textureIndexLowByte = (byte) (face.TextureIndex & 0x00FF);
-            // var color = new Color32(face.BlockLight, face.SkyLight, textureIndexHighByte, textureIndexLowByte);
-            var color = new Color32(0, 0, textureIndexHighByte, textureIndexLowByte);
-            half h0 = half(0f), h1 = half(1f);
-            var vertexIndex = i * 4;
-            
-            
-            // case statement on face.BlockType to set triangles
-            NativeList<int> triangles;
-            switch (face.BlockType)
-            {
-                case BlockType.Opaque:
-                    triangles = opaqueTriangles;
-                    break;
-                case BlockType.Transparent:
-                    triangles = transparentTriangles;
-                    break;
-                case BlockType.AlphaClip:
-                    triangles = alphaClipTriangles;
-                    break;
-                default:
-                    triangles = opaqueTriangles;
-                    break;
-            }
-            
+            var voxelIndex = i / 6;
+            var side = (Side) (i % 6);
+            var voxelXyz = IndexToXYZ(voxelIndex, dims);
+
             if (side == Side.East)
             {
-                vertices[vertexIndex + 0] = new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz, TexCoord0 = new half2(h0, h0), Color = color};
-                vertices[vertexIndex + 1] = new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz, TexCoord0 = new half2(h0, h1), Color = color};
-                vertices[vertexIndex + 2] = new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz, TexCoord0 = new half2(h1, h1), Color = color};
-                vertices[vertexIndex + 3] = new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz, TexCoord0 = new half2(h1, h0), Color = color};
-                triangles.Add(vertexIndex);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 3);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 2);
-                triangles.Add(vertexIndex + 3);
+                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz});
+                triangles.Add(faceCount*4 + 0);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 3);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 2);
+                triangles.Add(faceCount*4 + 3);
             }
             else if (side == Side.Up)
             {
-                vertices[vertexIndex + 0] = new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz, TexCoord0 = new half2(h0, h0), Color = color};
-                vertices[vertexIndex + 1] = new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz, TexCoord0 = new half2(h0, h1), Color = color};
-                vertices[vertexIndex + 2] = new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz, TexCoord0 = new half2(h1, h1), Color = color};
-                vertices[vertexIndex + 3] = new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz, TexCoord0 = new half2(h1, h0), Color = color};
-                triangles.Add(vertexIndex);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 3);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 2);
-                triangles.Add(vertexIndex + 3);
+                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz});
+                triangles.Add(faceCount*4);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 3);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 2);
+                triangles.Add(faceCount*4 + 3);
             }
             else if (side == Side.North)
             {
-                vertices[vertexIndex + 0] = new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz, TexCoord0 = new half2(h1, h0), Color = color};
-                vertices[vertexIndex + 1] = new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz, TexCoord0 = new half2(h0, h0), Color = color};
-                vertices[vertexIndex + 2] = new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz, TexCoord0 = new half2(h1, h1), Color = color};
-                vertices[vertexIndex + 3] = new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz, TexCoord0 = new half2(h0, h1), Color = color};
-                triangles.Add(vertexIndex);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 2);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 3);
-                triangles.Add(vertexIndex + 2);
+                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz});
+                triangles.Add(faceCount*4);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 2);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 3);
+                triangles.Add(faceCount*4 + 2);
             }
             else if (side == Side.West)
             {
-                vertices[vertexIndex + 0] = new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz, TexCoord0 = new half2(h0, h0), Color = color};
-                vertices[vertexIndex + 1] = new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz, TexCoord0 = new half2(h0, h1), Color = color};
-                vertices[vertexIndex + 2] = new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz, TexCoord0 = new half2(h1, h0), Color = color};
-                vertices[vertexIndex + 3] = new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz, TexCoord0 = new half2(h1, h1), Color = color};
-                triangles.Add(vertexIndex);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 2);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 3);
-                triangles.Add(vertexIndex + 2);
+                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz});
+                triangles.Add(faceCount*4);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 2);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 3);
+                triangles.Add(faceCount*4 + 2);
             }
             else if (side == Side.Down)
             {
-                vertices[vertexIndex + 0] = new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz, TexCoord0 = new half2(h0, h0), Color = color};
-                vertices[vertexIndex + 1] = new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz, TexCoord0 = new half2(h1, h0), Color = color};
-                vertices[vertexIndex + 2] = new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz, TexCoord0 = new half2(h0, h1), Color = color};
-                vertices[vertexIndex + 3] = new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz, TexCoord0 = new half2(h1, h1), Color = color};
-                triangles.Add(vertexIndex);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 2);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 3);
-                triangles.Add(vertexIndex + 2);
+                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz});
+                triangles.Add(faceCount*4);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 2);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 3);
+                triangles.Add(faceCount*4 + 2);
             }
             else if (side == Side.South)
             {
-                vertices[vertexIndex + 0] = new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz, TexCoord0 = new half2(h0, h0), Color = color};
-                vertices[vertexIndex + 1] = new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz, TexCoord0 = new half2(h0, h1), Color = color};
-                vertices[vertexIndex + 2] = new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz, TexCoord0 = new half2(h1, h0), Color = color};
-                vertices[vertexIndex + 3] = new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz, TexCoord0 = new half2(h1, h1), Color = color};
-                triangles.Add(vertexIndex);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 2);
-                triangles.Add(vertexIndex + 1);
-                triangles.Add(vertexIndex + 3);
-                triangles.Add(vertexIndex + 2);
+                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz});
+                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz});
+                triangles.Add(faceCount*4);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 2);
+                triangles.Add(faceCount*4 + 1);
+                triangles.Add(faceCount*4 + 3);
+                triangles.Add(faceCount*4 + 2);
             }
+            faceCount++;
         }
 
-        // Mesh opaque, transparent, and alphaClip triangles
-        meshData.SetIndexBufferParams(opaqueTriangles.Length + alphaClipTriangles.Length + transparentTriangles.Length, IndexFormat.UInt16);
+        
+        
+        
+        var meshDataArray = Mesh.AllocateWritableMeshData(1);
+        var meshData = meshDataArray[0];
+        var layout = new[]
+        {
+            new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+        };
+        meshData.SetVertexBufferParams(vertices.Length, layout);
+        
+        
+        var vertexBuffer = meshData.GetVertexData<MyVertex>();
+        for (var i = 0; i < vertices.Length; i++)
+            vertexBuffer[i] = vertices[i];
+        
+        
+        meshData.SetIndexBufferParams(triangles.Length, IndexFormat.UInt16);
         var indexBuffer = meshData.GetIndexData<ushort>();
-        for (var i = 0; i < opaqueTriangles.Length; i++)
-            indexBuffer[i] = (ushort) opaqueTriangles[i];
-        for (var i = 0; i < alphaClipTriangles.Length; i++)
-            indexBuffer[opaqueTriangles.Length +  i] = (ushort) alphaClipTriangles[i];
-        for (var i = 0; i < transparentTriangles.Length; i++)
-            indexBuffer[opaqueTriangles.Length + alphaClipTriangles.Length + i] = (ushort) transparentTriangles[i];
+        for (var i = 0; i < triangles.Length; i++)
+            indexBuffer[i] = (ushort) triangles[i];
         
-        
-        
-        // Set subMeshes
-        meshData.subMeshCount = 3;
-        meshData.SetSubMesh(0, new SubMeshDescriptor(0, opaqueTriangles.Length));
-        meshData.SetSubMesh(1, new SubMeshDescriptor(opaqueTriangles.Length, alphaClipTriangles.Length));
-        meshData.SetSubMesh(2, new SubMeshDescriptor(opaqueTriangles.Length + alphaClipTriangles.Length, transparentTriangles.Length));
-        
+        meshData.subMeshCount = 1;
+        meshData.SetSubMesh(0, new SubMeshDescriptor(0, triangles.Length));
         
         var mesh = new Mesh();
         mesh.name = "ChunkMesh";
         Mesh.ApplyAndDisposeWritableMeshData(meshDataArray, mesh);
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
+        // mesh.RecalculateNormals();
+        // mesh.RecalculateBounds();
         GetComponent<MeshFilter>().mesh = mesh;
     }
 
-
-    private int GetYZXIndex(int3 voxelXyz, int3 Dims)
-    {
-        return voxelXyz.y * Dims.z * Dims.x + voxelXyz.z * Dims.x + voxelXyz.x;
-    }
 
     private bool IsWithinBounds(int3 voxel, int3 dimensions)
     {
@@ -233,13 +214,15 @@ public class Chunk : MonoBehaviour
     public struct MyVertex
     {
         public float3 Position;
-        public Color32 Color;
-        public half2 TexCoord0;
+        // public ushort normalX, normalY;
+        // public Color32 tangent;
+        // public Color32 Color;
+        // public half2 TexCoord0;
     }
 
     public struct Face
     {
-        public int TextureIndex;
+        public ushort TextureIndex;
         public BlockType BlockType;
         public byte SkyLight;
         public byte BlockLight;
@@ -264,4 +247,18 @@ public class Chunk : MonoBehaviour
         new(0, -1, 0), // down
         new(0, 0, -1) // south
     };
+    
+    int XYZToIndex(int3 xyz, int3 dims)
+    {
+        return xyz.x + xyz.y * dims.x + xyz.z * dims.x * dims.y;
+    }
+
+    int3 IndexToXYZ(int voxelIndex, int3 dims)
+    {
+        var z = voxelIndex / (dims.x * dims.y);
+        var y = (voxelIndex - z * dims.x * dims.y) / dims.x;
+        var x = voxelIndex - z * dims.x * dims.y - y * dims.x;
+        return new int3(x, y, z);
+    }
+
 }

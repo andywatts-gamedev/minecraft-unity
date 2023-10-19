@@ -7,7 +7,7 @@ public class Blocks : MonoBehaviour
     private static Blocks _instance;
     public static Blocks Instance => _instance;
     public List<Block> blocksList;
-    public Dictionary<int, Block> blocks;
+    public Dictionary<ushort, Block> blocks;
     public Texture2DArray opaqueTexture2DArray;
     public Texture2DArray alphaClipTexture2DArray;
     public Texture2DArray transTexture2DArray;
@@ -16,15 +16,15 @@ public class Blocks : MonoBehaviour
     void Awake()
     {
         _instance = this;
-        blocks = new Dictionary<int, Block>();
+        blocks = new Dictionary<ushort, Block>();
         opaqueTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT1, false);
         alphaClipTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT5, false);
         transTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT5, false);
-        var opaqueTextureCount = 0;
-        var transTextureCount = 0;
-        var alphaClipTextureCount = 0;
+        ushort opaqueTextureCount = 0;
+        ushort transTextureCount = 0;
+        ushort alphaClipTextureCount = 0;
         
-        for (int i=0; i<blocksList.Count; i++)
+        for (ushort i=0; i<blocksList.Count; i++)
         {
             var block = blocksList[i];
             blocks[i] = block;

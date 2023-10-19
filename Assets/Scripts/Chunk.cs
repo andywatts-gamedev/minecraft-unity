@@ -161,17 +161,20 @@ public class Chunk : MonoBehaviour
 
         
         
-        
-        var vertexAttributes = new NativeArray<VertexAttributeDescriptor>( 4, Allocator.Temp );
-        vertexAttributes[0] = new VertexAttributeDescriptor( dimension: 3);
-        vertexAttributes[1] = new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 3, stream: 1 );
-        vertexAttributes[2] = new VertexAttributeDescriptor( VertexAttribute.Tangent, dimension: 4, stream: 2 );
-        vertexAttributes[3] = new VertexAttributeDescriptor( VertexAttribute.TexCoord0, dimension: 2, stream: 3 );
-        // vertexAttributes[3] = new VertexAttributeDescriptor( VertexAttribute.Color, dimension: 4, stream: 4 );
+        var vertexAttributes = new NativeArray<VertexAttributeDescriptor>( 3, Allocator.Temp );
+        vertexAttributes[0] = new VertexAttributeDescriptor( VertexAttribute.Position, dimension: 3, stream: 0);
+        vertexAttributes[1] = new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 2, stream: 0 );
+        vertexAttributes[2] = new VertexAttributeDescriptor( VertexAttribute.Tangent, dimension: 4, stream: 0 );
+        // vertexAttributes[3] = new VertexAttributeDescriptor( VertexAttribute.TexCoord0, dimension: 2, stream: 1 );
+        // vertexAttributes[4] = new VertexAttributeDescriptor( VertexAttribute.Color, dimension: 4, stream: 1 );
         
         var meshDataArray = Mesh.AllocateWritableMeshData(1);
         var meshData = meshDataArray[0];
         meshData.SetVertexBufferParams(vertices.Length, vertexAttributes);
+        vertexAttributes.Dispose();
+        
+        
+        
         
         
         var positions = meshData.GetVertexData<float3>(0);

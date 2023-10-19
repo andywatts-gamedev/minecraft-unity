@@ -11,15 +11,28 @@ public class MeshTest : MonoBehaviour
 {
     public int numFaces;
             
+    public struct MyVertex
+    {
+        public float3 Position;
+        public float3 Normal;
+        // public Color32 tangent;
+    }
+    
     private void Start()
     {
         var meshDataArray = Mesh.AllocateWritableMeshData(1);
         var meshData = meshDataArray[0];
-        
         meshData.SetVertexBufferParams(numFaces * 4, new[]
         {
-            new VertexAttributeDescriptor(VertexAttribute.Position),
+            new VertexAttributeDescriptor( VertexAttribute.Position, dimension: 3, stream: 0),
+            new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 3, stream: 0 ),
+            // new VertexAttributeDescriptor( VertexAttribute.Tangent, dimension: 4, stream: 0 ),
+            // new VertexAttributeDescriptor( VertexAttribute.TexCoord0, dimension: 2, stream: 1 ),
+            // new VertexAttributeDescriptor( VertexAttribute.Color, dimension: 4, stream: 1 ),
         });
+        
+        
+        
         var vertices = meshData.GetVertexData<MyVertex>();
         meshData.SetIndexBufferParams(numFaces * 6, IndexFormat.UInt16);
         var triangles = meshData.GetIndexData<ushort>();
@@ -46,14 +59,8 @@ public class MeshTest : MonoBehaviour
         mesh.name = "ChunkMesh";
         Mesh.ApplyAndDisposeWritableMeshData(meshDataArray, mesh);
         mesh.RecalculateNormals();
-        // mesh.RecalculateBounds();
+        mesh.RecalculateBounds();
         GetComponent<MeshFilter>().mesh = mesh;
-    }
-
-
-    public struct MyVertex
-    {
-        public float3 Position;
     }
 
 }

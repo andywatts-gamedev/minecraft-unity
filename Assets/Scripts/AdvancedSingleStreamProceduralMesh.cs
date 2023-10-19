@@ -17,21 +17,26 @@ public class AdvancedSingleStreamProceduralMesh : MonoBehaviour {
 	}
 
 	void OnEnable () {
-		int vertexAttributeCount = 4;
 		int vertexCount = 4;
 		int triangleIndexCount = 6;
 
 		Mesh.MeshDataArray meshDataArray = Mesh.AllocateWritableMeshData(1);
 		Mesh.MeshData meshData = meshDataArray[0];
 
-		var vertexAttributes = new NativeArray<VertexAttributeDescriptor>( vertexAttributeCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory );
-		vertexAttributes[0] = new VertexAttributeDescriptor(dimension: 3);
+		var vertexAttributes = new NativeArray<VertexAttributeDescriptor>( 4, Allocator.Temp, NativeArrayOptions.UninitializedMemory );
+		vertexAttributes[0] = new VertexAttributeDescriptor( VertexAttribute.Position, dimension: 3 );
 		vertexAttributes[1] = new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 3 );
 		vertexAttributes[2] = new VertexAttributeDescriptor( VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4 );
 		vertexAttributes[3] = new VertexAttributeDescriptor( VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2 );
+		// vertexAttributes[4] = new VertexAttributeDescriptor( VertexAttribute.Color, dimension: 4 );
+		
+		
+		
 		meshData.SetVertexBufferParams(vertexCount, vertexAttributes);
 		vertexAttributes.Dispose();
 
+		
+		
 		NativeArray<Vertex> vertices = meshData.GetVertexData<Vertex>();
 
 		half h0 = half(0f), h1 = half(1f);

@@ -20,15 +20,9 @@ public class AdvancedMultiStreamProceduralMesh : MonoBehaviour {
 			vertexAttributeCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory
 		);
 		vertexAttributes[0] = new VertexAttributeDescriptor(dimension: 3);
-		vertexAttributes[1] = new VertexAttributeDescriptor(
-			VertexAttribute.Normal, dimension: 3, stream: 1
-		);
-		vertexAttributes[2] = new VertexAttributeDescriptor(
-			VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4, 2
-		);
-		vertexAttributes[3] = new VertexAttributeDescriptor(
-			VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2, 3
-		);
+		vertexAttributes[1] = new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 3, stream: 1 );
+		vertexAttributes[2] = new VertexAttributeDescriptor( VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4, 2 );
+		vertexAttributes[3] = new VertexAttributeDescriptor( VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2, 3 );
 		meshData.SetVertexBufferParams(vertexCount, vertexAttributes);
 		vertexAttributes.Dispose();
 

@@ -15,9 +15,15 @@ public class MeshTest : MonoBehaviour
     {
         public float3 Position;
         public float3 Normal;
-        // public Color32 tangent;
+        public half4 Tangent;
     }
-    
+
+    public struct MyVertex2
+    {
+        public half2 TexCoord0;
+        public Color32 Color;
+    }
+
     private void Start()
     {
         var meshDataArray = Mesh.AllocateWritableMeshData(1);
@@ -26,9 +32,9 @@ public class MeshTest : MonoBehaviour
         {
             new VertexAttributeDescriptor( VertexAttribute.Position, dimension: 3, stream: 0),
             new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 3, stream: 0 ),
-            // new VertexAttributeDescriptor( VertexAttribute.Tangent, dimension: 4, stream: 0 ),
-            // new VertexAttributeDescriptor( VertexAttribute.TexCoord0, dimension: 2, stream: 1 ),
-            // new VertexAttributeDescriptor( VertexAttribute.Color, dimension: 4, stream: 1 ),
+            new VertexAttributeDescriptor( VertexAttribute.Tangent, VertexAttributeFormat.Float16, dimension: 4, stream: 0 ),
+            new VertexAttributeDescriptor( VertexAttribute.TexCoord0, dimension: 2, stream: 1 ),
+            new VertexAttributeDescriptor( VertexAttribute.Color, dimension: 4, stream: 1 ),
         });
         
         

@@ -187,8 +187,8 @@ public class Chunk : MonoBehaviour
         var mesh = new Mesh();
         mesh.name = "ChunkMesh";
         Mesh.ApplyAndDisposeWritableMeshData(meshDataArray, mesh);
-        // mesh.RecalculateNormals();
-        // mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
         GetComponent<MeshFilter>().mesh = mesh;
     }
 

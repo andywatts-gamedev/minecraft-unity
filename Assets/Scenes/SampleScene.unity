@@ -527,10 +527,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dims:
-    x: 2
-    y: 10
-    z: 20
-  chunkType: 0
+    x: 64
+    y: 16
+    z: 64
+  chunkType: 1
 --- !u!33 &1110756816
 MeshFilter:
   m_ObjectHideFlags: 0

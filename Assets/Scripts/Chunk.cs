@@ -64,130 +64,161 @@ public class Chunk : MonoBehaviour
     }
 
     private void ComputeMesh()
-    {
-        var vertices = new NativeList<MyVertex>(Allocator.Temp);
-        var triangles = new NativeList<int>(Allocator.Temp);
+    { 
+        // Define MeshData
+        var numFaces = faces.Count(f => !f.Equals(default(Face)));
+        var meshDataArray = Mesh.AllocateWritableMeshData(1);
+        var meshData = meshDataArray[0];
+        meshData.SetVertexBufferParams(numFaces * 4, new[]
+        {
+            new VertexAttributeDescriptor( VertexAttribute.Position, dimension: 3, stream: 0),
+            new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 3, stream: 0 ),
+            new VertexAttributeDescriptor( VertexAttribute.Tangent, VertexAttributeFormat.Float16, dimension: 4, stream: 0 ),
+            new VertexAttributeDescriptor( VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, dimension: 2, stream: 1 ),
+            new VertexAttributeDescriptor( VertexAttribute.Color, VertexAttributeFormat.UNorm8, dimension: 4, stream: 2 ),
+        });
+        meshData.SetIndexBufferParams(numFaces * 6, IndexFormat.UInt16);
+        
+        
+        // Populate MeshData
+        var vertexStream0 = meshData.GetVertexData<VertexStream0>(0);
+        var triangles = meshData.GetIndexData<ushort>();
+        var texCoords = meshData.GetVertexData<half2>(1);
+        var colors = meshData.GetVertexData<Color32>(2);
 
+
+        var opaqueTriangles = new NativeList<ushort>(Allocator.Temp);
+        var transparentTriangles = new NativeList<ushort>(Allocator.Temp);
+        var alphaClipTriangles = new NativeList<ushort>(Allocator.Temp);
+        NativeList<ushort> tris;
+        
         var faceCount = 0;
         for (var i = 0; i < faces.Length; i++)
         {
             if (faces[i].Equals(default(Face)))
                 continue;
 
+            // Which triangles list?
+            if (faces[i].BlockType == BlockType.AlphaClip)
+                tris = alphaClipTriangles;
+            else if (faces[i].BlockType == BlockType.Transparent)
+                tris = transparentTriangles;
+            else 
+                tris = opaqueTriangles;
+                
             var voxelIndex = i / 6;
             var side = (Side) (i % 6);
             var voxelXyz = IndexToXYZ(voxelIndex, dims);
 
             if (side == Side.East)
             {
-                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz});
-                triangles.Add(faceCount*4 + 0);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 3);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 2);
-                triangles.Add(faceCount*4 + 3);
+                vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(1f, 0f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 1] = new VertexStream0 {Position = new float3(1f, 1f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 2] = new VertexStream0 {Position = new float3(1f, 1f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(1f, 0f, 1f) + voxelXyz};
+                tris.Add((ushort)(faceCount*4 + 0));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 3));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 2));
+                tris.Add((ushort)(faceCount*4 + 3));
             }
             else if (side == Side.Up)
             {
-                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz});
-                triangles.Add(faceCount*4);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 3);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 2);
-                triangles.Add(faceCount*4 + 3);
+                vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(0f, 1f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 1] = new VertexStream0 {Position = new float3(0f, 1f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 2] = new VertexStream0 {Position = new float3(1f, 1f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(1f, 1f, 0f) + voxelXyz};
+                tris.Add((ushort)(faceCount*4));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 3));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 2));
+                tris.Add((ushort)(faceCount*4 + 3));
             }
             else if (side == Side.North)
             {
-                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 1f) + voxelXyz});
-                triangles.Add(faceCount*4);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 2);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 3);
-                triangles.Add(faceCount*4 + 2);
+                vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(0f, 0f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 1] = new VertexStream0 {Position = new float3(1f, 0f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 2] = new VertexStream0 {Position = new float3(0f, 1f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(1f, 1f, 1f) + voxelXyz};
+                tris.Add((ushort)(faceCount*4));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 2));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 3));
+                tris.Add((ushort)(faceCount*4 + 2));
             }
             else if (side == Side.West)
             {
-                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz});
-                triangles.Add(faceCount*4);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 2);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 3);
-                triangles.Add(faceCount*4 + 2);
+                vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(0f, 0f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 1] = new VertexStream0 {Position = new float3(0f, 1f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 2] = new VertexStream0 {Position = new float3(0f, 0f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(0f, 1f, 0f) + voxelXyz};
+                tris.Add((ushort)(faceCount*4));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 2));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 3));
+                tris.Add((ushort)(faceCount*4 + 2));
             }
             else if (side == Side.Down)
             {
-                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 1f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 1f) + voxelXyz});
-                triangles.Add(faceCount*4);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 2);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 3);
-                triangles.Add(faceCount*4 + 2);
+                vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(0f, 0f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 1] = new VertexStream0 {Position = new float3(1f, 0f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 2] = new VertexStream0 {Position = new float3(0f, 0f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(1f, 0f, 1f) + voxelXyz};
+                tris.Add((ushort)(faceCount*4));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 2));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 3));
+                tris.Add((ushort)(faceCount*4 + 2));
             }
             else if (side == Side.South)
             {
-                vertices.Add(new MyVertex {Position = new float3(0f, 0f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(0f, 1f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 0f, 0f) + voxelXyz});
-                vertices.Add(new MyVertex {Position = new float3(1f, 1f, 0f) + voxelXyz});
-                triangles.Add(faceCount*4);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 2);
-                triangles.Add(faceCount*4 + 1);
-                triangles.Add(faceCount*4 + 3);
-                triangles.Add(faceCount*4 + 2);
+                vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(0f, 0f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 1] = new VertexStream0 {Position = new float3(0f, 1f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 2] = new VertexStream0 {Position = new float3(1f, 0f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(1f, 1f, 0f) + voxelXyz};
+                tris.Add((ushort)(faceCount*4));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 2));
+                tris.Add((ushort)(faceCount*4 + 1));
+                tris.Add((ushort)(faceCount*4 + 3));
+                tris.Add((ushort)(faceCount*4 + 2));
             }
+            
+            
+            // Texcoords
+            texCoords[faceCount*4 + 0] = (half)0;
+            texCoords[faceCount*4 + 1] = half2((half)0, (half)1);
+            texCoords[faceCount*4 + 2] = (half)1;
+            texCoords[faceCount*4 + 3] = half2((half)1, (half)0);
+            
+            // Colors
+            colors[faceCount * 4 + 0] = new Color32(1, 1, 1, 1);
+            colors[faceCount * 4 + 1] = new Color32(1, 1, 1, 1);
+            colors[faceCount * 4 + 2] = new Color32(1, 1, 1, 1);
+            colors[faceCount * 4 + 3] = new Color32(1, 1, 1, 1); 
+            
             faceCount++;
         }
+        
+        // Triangles
+        for (var i = 0; i < opaqueTriangles.Length; i++)
+            triangles[i] = opaqueTriangles[i];
+        for (var i = 0; i < alphaClipTriangles.Length; i++)
+            triangles[opaqueTriangles.Length +  i] = alphaClipTriangles[i];
+        for (var i = 0; i < transparentTriangles.Length; i++)
+            triangles[opaqueTriangles.Length + alphaClipTriangles.Length + i] = transparentTriangles[i];
 
         
-        
-        var vertexAttributes = new NativeArray<VertexAttributeDescriptor>( 3, Allocator.Temp );
-        vertexAttributes[0] = new VertexAttributeDescriptor( VertexAttribute.Position, dimension: 3, stream: 0);
-        vertexAttributes[1] = new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 2, stream: 0 );
-        vertexAttributes[2] = new VertexAttributeDescriptor( VertexAttribute.Tangent, dimension: 4, stream: 0 );
-        // vertexAttributes[3] = new VertexAttributeDescriptor( VertexAttribute.TexCoord0, dimension: 2, stream: 1 );
-        // vertexAttributes[4] = new VertexAttributeDescriptor( VertexAttribute.Color, dimension: 4, stream: 1 );
-        
-        var meshDataArray = Mesh.AllocateWritableMeshData(1);
-        var meshData = meshDataArray[0];
-        meshData.SetVertexBufferParams(vertices.Length, vertexAttributes);
-        vertexAttributes.Dispose();
-        
-        
-        
-        
-        
-        var positions = meshData.GetVertexData<float3>(0);
-        for (var i = 0; i < vertices.Length; i++)
-            positions[i] = vertices[i].Position;
-        
-        meshData.SetIndexBufferParams(triangles.Length, IndexFormat.UInt16);
-        var indexBuffer = meshData.GetIndexData<ushort>();
-        for (var i = 0; i < triangles.Length; i++)
-            indexBuffer[i] = (ushort) triangles[i];
-        
-        meshData.subMeshCount = 1;
-        meshData.SetSubMesh(0, new SubMeshDescriptor(0, triangles.Length));
+        meshData.subMeshCount = 3;
+        meshData.SetSubMesh(0, new SubMeshDescriptor(0, opaqueTriangles.Length));
+        meshData.SetSubMesh(1, new SubMeshDescriptor(opaqueTriangles.Length, alphaClipTriangles.Length));
+        meshData.SetSubMesh(2, new SubMeshDescriptor(opaqueTriangles.Length + alphaClipTriangles.Length, transparentTriangles.Length));
+
         
         var mesh = new Mesh();
         mesh.name = "ChunkMesh";
@@ -216,13 +247,11 @@ public class Chunk : MonoBehaviour
         };
     }
 
-    public struct MyVertex
+    public struct VertexStream0
     {
         public float3 Position;
-        // public ushort normalX, normalY;
-        // public Color32 tangent;
-        // public Color32 Color;
-        // public half2 TexCoord0;
+        public float3 Normal;
+        public half4 Tangent;
     }
 
     public struct Face

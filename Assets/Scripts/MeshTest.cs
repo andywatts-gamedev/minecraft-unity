@@ -27,7 +27,6 @@ public class MeshTest : MonoBehaviour
         meshData.SetIndexBufferParams(numFaces * 6, IndexFormat.UInt16);
         
         
-        
         // Populate MeshData
         var vertexStream0 = meshData.GetVertexData<VertexStream0>(0);
         var triangles = meshData.GetIndexData<ushort>();

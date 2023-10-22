@@ -19,5 +19,6 @@ public enum BlockType
 public enum ChunkType
 {
     Full,
-    Flat
+    Flat,
+    Terrain
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -13,6 +14,12 @@ public class Chunk : MonoBehaviour
     public NativeArray<ushort> voxels;
     public NativeArray<Face> faces;
     public ChunkType chunkType;
+
+    [Header("Blocks")]
+    public Block dirt;
+    public Block grassBlock;
+    public Block air;
+    
             
     private void Start()
     {
@@ -32,6 +39,21 @@ public class Chunk : MonoBehaviour
             var xyz = IndexToXYZ(i, dims);
             if (chunkType == ChunkType.Flat)
                 voxels[i] = (ushort)(xyz.y < 1 ? 1 : 0);  // Assume 1 is stone and 0 is air
+            
+            else if (chunkType == ChunkType.Terrain)
+            {
+                var xCoord = (float)xyz.x / dims.x;
+                var zCoord = (float)xyz.z / dims.z;
+                var height = Mathf.PerlinNoise(xCoord, zCoord) * 10.0f;
+                Debug.Log(height);
+                
+                if (xyz.y < height-1f)
+                    voxels[i] = (ushort)Blocks.Instance.blocks.FindIndex(b => b == dirt);
+                else if (xyz.y < height)
+                    voxels[i] = (ushort)Blocks.Instance.blocks.FindIndex(b => b == grassBlock);
+                else
+                    voxels[i] = (ushort)Blocks.Instance.blocks.FindIndex(b => b == air);
+            }
             else
                 voxels[i] = 1;
         }
@@ -170,8 +192,6 @@ public class Chunk : MonoBehaviour
             // Colors
             // TODO consider side and blockType to get textureIndex
             byte color = (byte)faces[i].TextureIndex;
-            Debug.Log((byte)faces[i].TextureIndex);
-            // var color = (byte) 2;
             colors[faceCount * 4 + 0] = new Color32(color, color, color,color);
             colors[faceCount * 4 + 1] = new Color32(color, color, color,color);
             colors[faceCount * 4 + 2] = new Color32(color, color, color,color);

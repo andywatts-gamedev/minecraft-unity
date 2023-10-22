@@ -497,12 +497,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09a146d003f841c58bd9b5e4e7f0be29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blocksList:
+  blocks:
   - {fileID: 11400000, guid: 6d65d034cd0d24f9c80e11a84e8561a7, type: 2}
+  - {fileID: 11400000, guid: ce092dd5478b24a94869595b54368ba7, type: 2}
   - {fileID: 11400000, guid: 7439d43a81e3b464487befcbe2e2d8f3, type: 2}
-  - {fileID: 11400000, guid: 097c5b76dcfc64e33b1f9ce0d3463df0, type: 2}
-  - {fileID: 11400000, guid: bb840ae2509984a70b8bbede79a2f948, type: 2}
   - {fileID: 11400000, guid: 2841a00304fa441138b8df965024ca28, type: 2}
+  - {fileID: 11400000, guid: bb840ae2509984a70b8bbede79a2f948, type: 2}
+  - {fileID: 11400000, guid: 097c5b76dcfc64e33b1f9ce0d3463df0, type: 2}
 --- !u!4 &671143785
 Transform:
   m_ObjectHideFlags: 0
@@ -614,10 +615,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dims:
-    x: 1
-    y: 1
-    z: 1
-  chunkType: 0
+    x: 50
+    y: 20
+    z: 50
+  chunkType: 2
+  dirt: {fileID: 11400000, guid: ce092dd5478b24a94869595b54368ba7, type: 2}
+  grassBlock: {fileID: 11400000, guid: 7439d43a81e3b464487befcbe2e2d8f3, type: 2}
+  air: {fileID: 11400000, guid: 6d65d034cd0d24f9c80e11a84e8561a7, type: 2}
 --- !u!33 &1110756816
 MeshFilter:
   m_ObjectHideFlags: 0

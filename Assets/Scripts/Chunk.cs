@@ -56,7 +56,7 @@ public class Chunk : MonoBehaviour
 
             if (IsFaceVisible(Blocks.Instance.blocks[voxel].Type, Blocks.Instance.blocks[adjacentVoxel].Type))
             {
-                // Debug.Log($"Got face {side} for voxel {voxel} at {voxelXyz}");
+                // Debug.Log($"Got face {side} for voxel {voxel} at {voxelXyz}  {(byte)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex}");
                 faces[i] = new Face {TextureIndex = (ushort)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex, BlockType = Blocks.Instance.blocks[voxel].Type};
             }
         }
@@ -169,10 +169,13 @@ public class Chunk : MonoBehaviour
             
             // Colors
             // TODO consider side and blockType to get textureIndex
-            colors[faceCount * 4 + 0] = new Color32(1, 1, 1, 1);
-            colors[faceCount * 4 + 1] = new Color32(1, 1, 1, 1);
-            colors[faceCount * 4 + 2] = new Color32(1, 1, 1, 1);
-            colors[faceCount * 4 + 3] = new Color32(1, 1, 1, 1); 
+            byte color = (byte)faces[i].TextureIndex;
+            Debug.Log((byte)faces[i].TextureIndex);
+            // var color = (byte) 2;
+            colors[faceCount * 4 + 0] = new Color32(color, color, color,color);
+            colors[faceCount * 4 + 1] = new Color32(color, color, color,color);
+            colors[faceCount * 4 + 2] = new Color32(color, color, color,color);
+            colors[faceCount * 4 + 3] = new Color32(color, color, color,color); 
             
             faceCount++;
         }

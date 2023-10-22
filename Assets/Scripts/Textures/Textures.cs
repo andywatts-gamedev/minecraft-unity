@@ -23,15 +23,24 @@ public class Textures : MonoBehaviour
         opaqueTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT1, false);
         alphaClipTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT5, false);
         transTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT5, false);
-        
-        for (ushort i=0; i<OpaqueTextures.Count; i++)
+
+        for (ushort i = 0; i < OpaqueTextures.Count; i++)
+        {
+            OpaqueTextures[i].TextureIndex = i;
             Graphics.CopyTexture(OpaqueTextures[i].Texture, 0, 0, opaqueTexture2DArray, i, 0);
+        }
 
         for (ushort i = 0; i < AlphaClipTextures.Count; i++)
+        {
+            AlphaClipTextures[i].TextureIndex = i;
             Graphics.CopyTexture(AlphaClipTextures[i].Texture, 0, 0, alphaClipTexture2DArray, i, 0);
-
+        }
+        
         for (ushort i = 0; i < TransparentTextures.Count; i++)
+        {
+            TransparentTextures[i].TextureIndex = i;
             Graphics.CopyTexture(TransparentTextures[i].Texture, 0, 0, transTexture2DArray, i, 0);
+        }
     }
     
 }

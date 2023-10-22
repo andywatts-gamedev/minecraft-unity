@@ -19,9 +19,9 @@ public class Chunk : MonoBehaviour
         ComputeVoxels();
         ComputeFaces();
         ComputeMesh();
-        GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Blocks.Instance.opaqueTexture2DArray);
-        GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Blocks.Instance.alphaClipTexture2DArray);
-        GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Blocks.Instance.transTexture2DArray);
+        GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
+        GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
+        GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
     }
 
     private void ComputeVoxels()
@@ -54,10 +54,10 @@ public class Chunk : MonoBehaviour
             var adjacentIsWithinBounds = IsWithinBounds(adjacentVoxelXyz, dims);
             var adjacentVoxel = (ushort)(adjacentIsWithinBounds ? voxels[adjacentVoxelIndex] : 0);
 
-            if (IsFaceVisible(Blocks.Instance.blocks[voxel].type, Blocks.Instance.blocks[adjacentVoxel].type))
+            if (IsFaceVisible(Blocks.Instance.blocks[voxel].Type, Blocks.Instance.blocks[adjacentVoxel].Type))
             {
                 // Debug.Log($"Got face {side} for voxel {voxel} at {voxelXyz}");
-                faces[i] = new Face {TextureIndex = Blocks.Instance.blocks[voxel].textureArrayIndex, BlockType = Blocks.Instance.blocks[voxel].type};
+                faces[i] = new Face {TextureIndex = (ushort)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex, BlockType = Blocks.Instance.blocks[voxel].Type};
             }
         }
         Debug.Log($"Got {faces.Count(f => !f.Equals(default(Face)))} faces");
@@ -168,6 +168,7 @@ public class Chunk : MonoBehaviour
             texCoords[faceCount*4 + 3] = half2((half)1, (half)0);
             
             // Colors
+            // TODO consider side and blockType to get textureIndex
             colors[faceCount * 4 + 0] = new Color32(1, 1, 1, 1);
             colors[faceCount * 4 + 1] = new Color32(1, 1, 1, 1);
             colors[faceCount * 4 + 2] = new Color32(1, 1, 1, 1);
@@ -233,16 +234,6 @@ public class Chunk : MonoBehaviour
         public byte BlockLight;
     }
     
-    public enum Side : byte
-    {
-        East,
-        Up,
-        North,
-        West,
-        Down,
-        South
-    } // %3 => xyz;  // Voxels have sides
-
     private static readonly int3[] Offsets =
     {
         new(1, 0, 0), // east

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.AI.Navigation;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
@@ -14,6 +15,7 @@ public class Chunk : MonoBehaviour
     public NativeArray<ushort> voxels;
     public NativeArray<Face> faces;
     public ChunkType chunkType;
+    public NavMeshSurface navMeshSurface;
 
     [Header("Blocks")]
     public Block dirt;
@@ -42,11 +44,12 @@ public class Chunk : MonoBehaviour
             
             else if (chunkType == ChunkType.Terrain)
             {
-                var xCoord = (float)xyz.x / dims.x;
-                var zCoord = (float)xyz.z / dims.z;
-                var height = Mathf.PerlinNoise(xCoord, zCoord) * 10.0f;
-                Debug.Log(height);
-                
+                var scale = 0.1f;
+                var amplitude = 5.0f;
+                var xCoord = (float)xyz.x * scale;
+                var zCoord = (float)xyz.z * scale;
+                var height = Mathf.PerlinNoise(xCoord, zCoord) * amplitude;
+
                 if (xyz.y < height-1f)
                     voxels[i] = (ushort)Blocks.Instance.blocks.FindIndex(b => b == dirt);
                 else if (xyz.y < height)
@@ -221,6 +224,11 @@ public class Chunk : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         GetComponent<MeshFilter>().mesh = mesh;
+        
+        var collider = gameObject.AddComponent<MeshCollider>();
+        collider.sharedMesh = mesh;
+        
+        navMeshSurface.UpdateNavMesh(navMeshSurface.navMeshData);
     }
 
 

@@ -6,13 +6,15 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 using static Unity.Mathematics.math;
 
 public class Chunk : MonoBehaviour
 {
     public int3 dims;
-    // public List<int> voxels;
     public NativeArray<ushort> voxels;
+    public NativeArray<byte> blockLights;
+    public NativeArray<byte> skyLights;
     public NativeArray<Face> faces;
     public ChunkType chunkType;
     public NavMeshSurface navMeshSurface;
@@ -22,15 +24,21 @@ public class Chunk : MonoBehaviour
     public Block grassBlock;
     public Block air;
     
+    [Header("WIP")]
+    public GameObject torchPrefab;
+    public byte blockLightDefault;
+    public byte skyLightDefault;
+    
             
     private void Start()
     {
         ComputeVoxels();
+        ComputeLights();
         ComputeFaces();
         ComputeMesh();
         GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
-        GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
-        GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
+        // GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
+        // GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
     }
 
     private void ComputeVoxels()
@@ -40,7 +48,7 @@ public class Chunk : MonoBehaviour
         {
             var xyz = IndexToXYZ(i, dims);
             if (chunkType == ChunkType.Flat)
-                voxels[i] = (ushort)(xyz.y < 1 ? 1 : 0);  // Assume 1 is stone and 0 is air
+                voxels[i] = (ushort)(xyz.y < 1 ? (ushort)Blocks.Instance.blocks.FindIndex(b => b == grassBlock) : 0); 
             
             else if (chunkType == ChunkType.Terrain)
             {
@@ -62,6 +70,24 @@ public class Chunk : MonoBehaviour
         }
     }
 
+    private void ComputeLights()
+    {
+        blockLights = new NativeArray<byte>(dims.x * dims.y * dims.z, Allocator.Temp);
+        skyLights = new NativeArray<byte>(dims.x * dims.y * dims.z, Allocator.Temp);
+        var torchPosition = new float3(1f, 1f, 1f);
+        
+        if (chunkType == ChunkType.Flat)
+        {
+            var index = XYZToIndex((int3) torchPosition, dims);
+            blockLights[index] = (byte) 14;
+            Debug.Log(index);
+            Debug.Log(IndexToXYZ(index, dims));
+            
+            var torch = GameObject.Instantiate(torchPrefab);
+            torch.transform.position = torchPosition + new float3(0.5f, 0.5f, 0.5f);
+        }
+    }
+    
     private void ComputeFaces()
     {
         var numFaces = dims.x * dims.y * dims.z * 6;
@@ -82,7 +108,13 @@ public class Chunk : MonoBehaviour
             if (IsFaceVisible(Blocks.Instance.blocks[voxel].Type, Blocks.Instance.blocks[adjacentVoxel].Type))
             {
                 // Debug.Log($"Got face {side} for voxel {voxel} at {voxelXyz}  {(byte)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex}");
-                faces[i] = new Face {TextureIndex = (ushort)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex, BlockType = Blocks.Instance.blocks[voxel].Type};
+                faces[i] = new Face
+                {
+                    TextureIndex = (ushort)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex,
+                    BlockType = Blocks.Instance.blocks[voxel].Type,
+                    BlockLight = adjacentIsWithinBounds ? blockLights[adjacentVoxelIndex] : blockLightDefault,
+                    SkyLight = adjacentIsWithinBounds ? skyLights[adjacentVoxelIndex] : skyLightDefault,
+                };
             }
         }
         Debug.Log($"Got {faces.Count(f => !f.Equals(default(Face)))} faces");
@@ -194,11 +226,13 @@ public class Chunk : MonoBehaviour
             
             // Colors
             // TODO consider side and blockType to get textureIndex
-            byte color = (byte)faces[i].TextureIndex;
-            colors[faceCount * 4 + 0] = new Color32(color, color, color,color);
-            colors[faceCount * 4 + 1] = new Color32(color, color, color,color);
-            colors[faceCount * 4 + 2] = new Color32(color, color, color,color);
-            colors[faceCount * 4 + 3] = new Color32(color, color, color,color); 
+            var textureIndex = (byte)faces[i].TextureIndex;
+            var blockLight = faces[i].BlockLight;
+            var skyLight = faces[i].SkyLight;
+            colors[faceCount * 4 + 0] = new Color32(blockLight, skyLight, 0,textureIndex);
+            colors[faceCount * 4 + 1] = new Color32(blockLight, skyLight, 0,textureIndex);
+            colors[faceCount * 4 + 2] = new Color32(blockLight, skyLight, 0,textureIndex);
+            colors[faceCount * 4 + 3] = new Color32(blockLight, skyLight, 0,textureIndex); 
             
             faceCount++;
         }
@@ -228,9 +262,8 @@ public class Chunk : MonoBehaviour
         var collider = gameObject.AddComponent<MeshCollider>();
         collider.sharedMesh = mesh;
         
-        navMeshSurface.UpdateNavMesh(navMeshSurface.navMeshData);
+        // navMeshSurface.UpdateNavMesh(navMeshSurface.navMeshData);
     }
-
 
     private bool IsWithinBounds(int3 voxel, int3 dimensions)
     {
@@ -250,21 +283,6 @@ public class Chunk : MonoBehaviour
         };
     }
 
-    public struct VertexStream0
-    {
-        public float3 Position;
-        public float3 Normal;
-        public half4 Tangent;
-    }
-
-    public struct Face
-    {
-        public ushort TextureIndex;
-        public BlockType BlockType;
-        public byte SkyLight;
-        public byte BlockLight;
-    }
-    
     private static readonly int3[] Offsets =
     {
         new(1, 0, 0), // east

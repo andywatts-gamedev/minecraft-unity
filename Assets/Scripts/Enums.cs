@@ -14,6 +14,7 @@ public enum BlockType
     Opaque,
     Transparent,
     AlphaClip,
+    Model,
 }
 
 public enum ChunkType

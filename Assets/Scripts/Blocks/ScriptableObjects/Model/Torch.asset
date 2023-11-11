@@ -24,12 +24,12 @@ MonoBehaviour:
       x: 9
       y: 10
       z: 9
-    Down: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
-    Up: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
-    North: {fileID: 0}
-    South: {fileID: 0}
     East: {fileID: 0}
+    North: {fileID: 0}
+    Up: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
     West: {fileID: 0}
+    South: {fileID: 0}
+    Down: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
     UpUvs:
       x: 7
       y: 6
@@ -75,12 +75,12 @@ MonoBehaviour:
       x: 9
       y: 16
       z: 16
-    Down: {fileID: 0}
-    Up: {fileID: 0}
-    North: {fileID: 0}
-    South: {fileID: 0}
     East: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
+    North: {fileID: 0}
+    Up: {fileID: 0}
     West: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
+    South: {fileID: 0}
+    Down: {fileID: 0}
     UpUvs:
       x: 0
       y: 0
@@ -126,12 +126,12 @@ MonoBehaviour:
       x: 16
       y: 16
       z: 9
-    Down: {fileID: 0}
-    Up: {fileID: 0}
-    North: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
-    South: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
     East: {fileID: 0}
+    North: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
+    Up: {fileID: 0}
     West: {fileID: 0}
+    South: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
+    Down: {fileID: 0}
     UpUvs:
       x: 0
       y: 0

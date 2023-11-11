@@ -136,14 +136,10 @@ public class ModelMono : MonoBehaviour
 
     private static NativeArray<half2> AddTexCoords(NativeArray<half2> texCoords, int i, int4 ii)
     {
-                texCoords[i * 4 + 0] = half2((half)(ii.x/16f),  (half)(ii.y/16f));
-                texCoords[i * 4 + 1] = half2((half)(ii.x/16f),  (half)(ii.w/16f));
-                texCoords[i * 4 + 2] = half2((half)(ii.z/16f),  (half)(ii.w/16f));
-                texCoords[i * 4 + 3] = half2((half)(ii.z/16f),  (half)(ii.y/16f));
-        // texCoords[i * 4 + 0] = (half) 0;
-        // texCoords[i * 4 + 1] = half2((half) 0, (half) 1);
-        // texCoords[i * 4 + 2] = (half) 1;
-        // texCoords[i * 4 + 3] = half2((half) 1, (half) 0);
+        texCoords[i * 4 + 0] = half2((half)(ii.x/16f),  (half)(ii.y/16f));
+        texCoords[i * 4 + 1] = half2((half)(ii.x/16f),  (half)(ii.w/16f));
+        texCoords[i * 4 + 2] = half2((half)(ii.z/16f),  (half)(ii.w/16f));
+        texCoords[i * 4 + 3] = half2((half)(ii.z/16f),  (half)(ii.y/16f));
         return texCoords;
     }
 

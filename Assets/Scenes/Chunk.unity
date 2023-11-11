@@ -312,7 +312,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &333903079
 Transform:
   m_ObjectHideFlags: 0
@@ -480,6 +480,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ee5fa986af1824108bfc7f3c78c34760, type: 2}
   AlphaClipTextures:
   - {fileID: 11400000, guid: 34cddf43c420346b8a70f3d58c2f9e57, type: 2}
+  - {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
   opaqueTexture2DArray: {fileID: 0}
   alphaClipTexture2DArray: {fileID: 0}
   transTexture2DArray: {fileID: 0}
@@ -1624,7 +1625,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1829657619
 Transform:
   m_ObjectHideFlags: 0

@@ -30,12 +30,12 @@ public struct ModelElement
 {
     public float3 From; // Cross is float
     public float3 To;
-    public TextureObject Down; // TODO Cullface
-    public TextureObject Up;
-    public TextureObject North;
-    public TextureObject South;
     public TextureObject East;
+    public TextureObject North;
+    public TextureObject Up;
     public TextureObject West;
+    public TextureObject South;
+    public TextureObject Down; // TODO Cullface
     public int4 UpUvs;
     public int4 DownUvs;
     public int4 NorthUvs;

@@ -25,7 +25,7 @@ public class Chunk : MonoBehaviour
     public Block air;
     
     [Header("WIP")]
-    public GameObject torchPrefab;
+    // public GameObject torchPrefab;
     public byte blockLightDefault;
     public byte skyLightDefault;
     
@@ -83,8 +83,8 @@ public class Chunk : MonoBehaviour
             Debug.Log(index);
             Debug.Log(IndexToXYZ(index, dims));
             
-            var torch = GameObject.Instantiate(torchPrefab);
-            torch.transform.position = torchPosition + new float3(0.5f, 0.5f, 0.5f);
+            // var torch = GameObject.Instantiate(torchPrefab);
+            // torch.transform.position = torchPosition + new float3(0.5f, 0.5f, 0.5f);
         }
     }
     

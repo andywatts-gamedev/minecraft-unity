@@ -13,4 +13,6 @@ public struct Face
     public BlockType BlockType;
     public byte SkyLight;
     public byte BlockLight;
+    public byte Smoothness;
+    public byte Metallic;
 }

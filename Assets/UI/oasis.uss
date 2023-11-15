@@ -1,0 +1,61 @@
+.full-screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.field {
+    font-size: 20px;
+    -unity-text-align: upper-right;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    color: rgb(255, 255, 255);
+}
+
+.title {
+    font-size: 32px;
+    -unity-font-style: bold;
+    border-bottom-width: 2px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom-color: rgb(188, 136, 76);
+    color: rgb(250, 206, 155);
+}
+
+TextField > TextInput {
+    background-color: rgba(255, 255, 255, 0);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    padding-left: 10px;
+    margin-left: 10px;
+    border-left-color: rgb(144, 144, 144);
+    border-right-color: rgb(144, 144, 144);
+    border-top-color: rgb(144, 144, 144);
+    border-bottom-color: rgb(144, 144, 144);
+}
+
+.button {
+    font-size: 24px;
+}
+
+.section {
+    width: 25%;
+    height: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.82);
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.debug {
+    display: none;
+}

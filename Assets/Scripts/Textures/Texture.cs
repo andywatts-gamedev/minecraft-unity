@@ -7,4 +7,6 @@ public class TextureObject : ScriptableObject
     public Texture2D Texture;
     public BlockType Type;
     public int TextureIndex;
+    public byte Metallic;
+    public byte Smoothness;
 }

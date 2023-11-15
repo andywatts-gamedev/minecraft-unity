@@ -108,12 +108,15 @@ public class Chunk : MonoBehaviour
             if (IsFaceVisible(Blocks.Instance.blocks[voxel].Type, Blocks.Instance.blocks[adjacentVoxel].Type))
             {
                 // Debug.Log($"Got face {side} for voxel {voxel} at {voxelXyz}  {(byte)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex}");
+                var textureObject = Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject;
                 faces[i] = new Face
                 {
-                    TextureIndex = (ushort)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex,
-                    BlockType = Blocks.Instance.blocks[voxel].Type,
-                    BlockLight = adjacentIsWithinBounds ? blockLights[adjacentVoxelIndex] : blockLightDefault,
-                    SkyLight = adjacentIsWithinBounds ? skyLights[adjacentVoxelIndex] : skyLightDefault,
+                    TextureIndex = (ushort)textureObject.TextureIndex,
+                    BlockType    = Blocks.Instance.blocks[voxel].Type,
+                    BlockLight   = adjacentIsWithinBounds ? blockLights[adjacentVoxelIndex] : blockLightDefault,
+                    SkyLight     = adjacentIsWithinBounds ? skyLights[adjacentVoxelIndex] : skyLightDefault,
+                    Metallic     = adjacentIsWithinBounds ? textureObject.Metallic : (byte)0,
+                    Smoothness   = adjacentIsWithinBounds ? textureObject.Smoothness : (byte)0,
                 };
             }
         }
@@ -226,13 +229,14 @@ public class Chunk : MonoBehaviour
             
             // Colors
             // TODO consider side and blockType to get textureIndex
-            var textureIndex = (byte)faces[i].TextureIndex;
+            var textureIndex = (byte)faces[i].TextureIndex;   // Must * 256 in SG to get index
             var blockLight = faces[i].BlockLight;
             var skyLight = faces[i].SkyLight;
-            colors[faceCount * 4 + 0] = new Color32(blockLight, skyLight, 0,textureIndex);
-            colors[faceCount * 4 + 1] = new Color32(blockLight, skyLight, 0,textureIndex);
-            colors[faceCount * 4 + 2] = new Color32(blockLight, skyLight, 0,textureIndex);
-            colors[faceCount * 4 + 3] = new Color32(blockLight, skyLight, 0,textureIndex); 
+            var metallicSmoothness = PackValues(faces[i].Metallic, faces[i].Smoothness);
+            colors[faceCount * 4 + 0] = new Color32(blockLight, skyLight, metallicSmoothness,textureIndex);
+            colors[faceCount * 4 + 1] = new Color32(blockLight, skyLight, metallicSmoothness,textureIndex);
+            colors[faceCount * 4 + 2] = new Color32(blockLight, skyLight, metallicSmoothness,textureIndex);
+            colors[faceCount * 4 + 3] = new Color32(blockLight, skyLight, metallicSmoothness,textureIndex); 
             
             faceCount++;
         }
@@ -304,6 +308,19 @@ public class Chunk : MonoBehaviour
         var y = (voxelIndex - z * dims.x * dims.y) / dims.x;
         var x = voxelIndex - z * dims.x * dims.y - y * dims.x;
         return new int3(x, y, z);
+    }
+
+    
+    public static byte PackValues(byte value1, byte value2)
+    {
+        // Ensure that values are within the 4-bit range
+        value1 = (byte)(value1 & 0x0F);
+        value2 = (byte)(value2 & 0x0F);
+        
+        // Pack the values into a single byte
+        byte packedValue = (byte)((value1 << 4) | value2);
+
+        return packedValue;
     }
 
 }

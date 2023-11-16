@@ -58,7 +58,6 @@ public class PlayerActions : MonoBehaviour
         direction = Quaternion.Euler(0.0f, yRotation, 0.0f) * direction;
     }
 
-
     public void Jump(InputAction.CallbackContext context)
     {
         if (context.started && controller.isGrounded)

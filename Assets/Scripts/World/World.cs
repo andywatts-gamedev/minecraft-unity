@@ -9,8 +9,11 @@ using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using static Unity.Mathematics.math;
 
-public class Chunk : MonoBehaviour
+public class World : MonoBehaviour
 {
+    private static World _instance;
+    public static World Instance => _instance;
+    
     public int3 dims;
     public NativeArray<ushort> voxels;
     public NativeArray<byte> blockLights;
@@ -29,16 +32,73 @@ public class Chunk : MonoBehaviour
     public byte blockLightDefault;
     public byte skyLightDefault;
     
-            
+    [Header("Building Sites")]
+    public List<Vector3> buildingSites;
+    public int[,] heightMap;
+    public GameObject house4x3x4;
+    public Transform houses;
+    public bool buildingSitesDebug;
+    public List<GameObject> buildingSiteDebugGOs;
+    
+    [Header("Bobs")]
+    public int numBobs;
+    public Transform bobs;
+    public GameObject bobPrefab;
+
+    private void Awake()
+    {
+        _instance = this;
+        buildingSiteDebugGOs = new List<GameObject>();
+    }
+    
     private void Start()
     {
         ComputeVoxels();
         ComputeLights();
         ComputeFaces();
         ComputeMesh();
+        
+        GetComponent<NavMeshSurface>().BuildNavMesh();
+        
+        ComputeHeightMap();
+        ComputeBuildingSites();
+        
+        CreateBobs();
+        
         GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
         // GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
         // GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
+    }
+
+    private void Update()
+    {
+        DebugBuildingSites();
+    }
+
+    private void DebugBuildingSites()
+    {
+        // If enabling building site debug...create buildingSiteDebugGOs
+        if (buildingSitesDebug && buildingSiteDebugGOs.Count == 0)
+            foreach (var buildingSite in buildingSites)
+                buildingSiteDebugGOs.Add( Instantiate(house4x3x4, buildingSite, Quaternion.identity, houses) );
+        
+        // else destroy buildingSiteDebugGOs
+        else if (!buildingSitesDebug && buildingSiteDebugGOs.Count > 0)
+        {
+            foreach (var buildingSiteDebugGO in buildingSiteDebugGOs)
+                GameObject.Destroy(buildingSiteDebugGO);
+            buildingSiteDebugGOs.Clear();
+        }
+    }
+
+    private void CreateBobs()
+    {
+        for (var i = 0; i < numBobs; i++)
+        {
+            var x = UnityEngine.Random.Range(0, dims.x);
+            var z = UnityEngine.Random.Range(0, dims.z);
+            Instantiate(bobPrefab, new Vector3(x, 5f, z), Quaternion.identity, bobs);
+        }
     }
 
     private void ComputeVoxels()
@@ -265,8 +325,6 @@ public class Chunk : MonoBehaviour
         
         var collider = gameObject.AddComponent<MeshCollider>();
         collider.sharedMesh = mesh;
-        
-        // navMeshSurface.UpdateNavMesh(navMeshSurface.navMeshData);
     }
 
     private bool IsWithinBounds(int3 voxel, int3 dimensions)
@@ -287,6 +345,55 @@ public class Chunk : MonoBehaviour
         };
     }
 
+    void ComputeBuildingSites()
+    {
+        buildingSites = new List<Vector3>();
+        var buildingDims = new int3(4, 3, 4); // Assuming no overhangs
+        // loop over x and z in heightmap and look for flat areas of 4x4
+        for (var x = 0; x < dims.x; x++)
+        for (var z = 0; z < dims.z; z++)
+        {
+            var height = heightMap[x, z];
+            if (height == 0)
+                continue;
+            
+            var isFlat = true;
+            for (var dx = 0; dx < buildingDims.x; dx++)
+            for (var dz = 0; dz < buildingDims.z; dz++)
+            {
+                if (x + dx >= dims.x || z + dz >= dims.z || heightMap[x + dx, z + dz] != height)
+                {
+                    isFlat = false;
+                    break;
+                }
+            }
+
+            if (isFlat)
+            {
+                Debug.Log($"Found flat area at {x}, {z} with height {height}");
+                var offset = new Vector3(2f, 0f, 2f); // Building is 4x3x4
+                buildingSites.Add(new Vector3(x, height, z) + offset);
+            }
+        }
+    }
+
+    private void ComputeHeightMap()
+    {
+        heightMap = new int[dims.x, dims.z];
+        for (var x = 0; x < dims.x; x++)
+        for (var z = 0; z < dims.z; z++)
+        for (var y = dims.y-1; y >= 0; y--)
+        {
+            var voxelIndex = XYZToIndex(new int3(x, y, z), dims);
+            if (voxels[voxelIndex] != 0)
+            {
+                heightMap[x, z] = y;
+                break;
+            }
+        }
+    }
+
+    // --- Static Helpers ---
     private static readonly int3[] Offsets =
     {
         new(1, 0, 0), // east
@@ -296,13 +403,13 @@ public class Chunk : MonoBehaviour
         new(0, -1, 0), // down
         new(0, 0, -1) // south
     };
-    
-    int XYZToIndex(int3 xyz, int3 dims)
+
+    static int XYZToIndex(int3 xyz, int3 dims)
     {
         return xyz.x + xyz.y * dims.x + xyz.z * dims.x * dims.y;
     }
 
-    int3 IndexToXYZ(int voxelIndex, int3 dims)
+    static int3 IndexToXYZ(int voxelIndex, int3 dims)
     {
         var z = voxelIndex / (dims.x * dims.y);
         var y = (voxelIndex - z * dims.x * dims.y) / dims.x;
@@ -310,8 +417,7 @@ public class Chunk : MonoBehaviour
         return new int3(x, y, z);
     }
 
-    
-    public static byte PackValues(byte value1, byte value2)
+    static byte PackValues(byte value1, byte value2)
     {
         // Ensure that values are within the 4-bit range
         value1 = (byte)(value1 & 0x0F);

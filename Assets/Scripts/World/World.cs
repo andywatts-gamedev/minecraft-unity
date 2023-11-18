@@ -370,7 +370,7 @@ public class World : MonoBehaviour
 
             if (isFlat)
             {
-                Debug.Log($"Found flat area at {x}, {z} with height {height}");
+                // Debug.Log($"Found flat area at {x}, {z} with height {height}");
                 var offset = new Vector3(2f, 0f, 2f); // Building is 4x3x4
                 buildingSites.Add(new Vector3(x, height, z) + offset);
             }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31280cf029fb42e887612f13fdf9b87d, type: 3}
   m_Name: blueprint-2023-11-22-22-19-28
   m_EditorClassIdentifier: 
-  Name: blueprint
+  Name: Mud House
   Dims:
     x: 3
     y: 2

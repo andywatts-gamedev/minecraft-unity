@@ -30,8 +30,6 @@ public class Toolbar : MonoBehaviour
         slots = toolbar.Query<VisualElement>("toolbarSlot");
 
         var blockGO = Instantiate(blockPrefab);
-        blockGO.transform.position = new Vector3(-0.0f, -0.2f, -0f);
-        blockGO.transform.rotation = Quaternion.Euler(15f, 180+47, 15f);
         var meshFilter = blockGO.GetComponent<MeshFilter>();
         blockGO.GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
 

@@ -73,9 +73,10 @@ public class World : MonoBehaviour
     {
         mesh = Mesher.Compute(dims, voxels);
         GetComponent<MeshFilter>().mesh = mesh;
+        meshCollider.sharedMesh = mesh;
         ComputeHeightMap();    // TODO still used?
-        // GetComponent<NavMeshSurface>().BuildNavMesh();
-        // ComputeBuildingSites();  // TODO What to do about Bobs enroute?
+        GetComponent<NavMeshSurface>().BuildNavMesh();
+        ComputeBuildingSites();  // TODO What to do about Bobs enroute?
     }
     
     private void DebugBuildingSites()
@@ -162,7 +163,9 @@ public class World : MonoBehaviour
             {
                 // Debug.Log($"Found flat area at {x}, {z} with height {height}");
                 var offset = new Vector3(2f, 0f, 2f); // Building is 4x3x4
-                buildingSites.Add(new Vector3(x, height, z) + offset);
+                Debug.Log($"Height: {height} \t Total: {height+(buildingDims.y/2f)}");
+                buildingSites.Add(new Vector3(x, height+1f+(buildingDims.y/2f), z) + offset);
+                return; // Temp do one building only
             }
         }
     }

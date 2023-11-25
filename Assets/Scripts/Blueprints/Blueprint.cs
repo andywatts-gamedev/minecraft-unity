@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "Blueprint", menuName = "Oasis/Blueprint")]
 public class Blueprint : ScriptableObject
 {
-    public string Name;
-    public int3 Dims;
+    public string name;
+    public int3 dims;
     public Block[] blocks; // xyz
 }

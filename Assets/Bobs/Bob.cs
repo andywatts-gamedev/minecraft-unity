@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.VisualScripting.ReorderableList;
 using UnityEngine;
 using UnityEngine.AI;
@@ -7,9 +8,16 @@ using UnityEngine.Serialization;
 
 public class Bob : MonoBehaviour
 {
-    Vector3 targetBuildingSite;
-    public GameObject housePrefab;
-    public GameObject house;
+    [Header("Building Site")]
+    public Vector3 targetBuildingSite;
+    public GameObject buildingSitePrefab;
+    public GameObject buildingSiteGO;
+    
+    [Header("Building")]
+    public int3 buildingXYZ;
+    public Blueprint buildingBlueprint;
+    
+    [Header("Character")]
     public CharacterController controller;
     private Vector3 direction;
     private float velocity;
@@ -23,15 +31,13 @@ public class Bob : MonoBehaviour
     void Start()
     {
         // Find closest building site
+        if (World.Instance.buildingSites.Count == 0)
+            Debug.LogError("No building sites found!");
         foreach (var buildingSite in World.Instance.buildingSites)
-        {
-            if (targetBuildingSite == Vector3.zero)
+            if (Vector3.Distance(transform.position, buildingSite) < Vector3.Distance(transform.position, targetBuildingSite))
                 targetBuildingSite = buildingSite;
-            else
-                if (Vector3.Distance(transform.position, buildingSite) < Vector3.Distance(transform.position, targetBuildingSite))
-                    targetBuildingSite = buildingSite;
-        }
-
+        Debug.Log("Found building site " + targetBuildingSite);
+        
         // Take closest building site and remove it from the list
         if (targetBuildingSite != Vector3.zero)
         {
@@ -39,27 +45,58 @@ public class Bob : MonoBehaviour
             navMeshAgent.SetDestination(targetBuildingSite);
         }
 
-        house = Instantiate(housePrefab, targetBuildingSite, Quaternion.identity, transform.parent);
+        // Create building site GO
+        buildingSiteGO = Instantiate(buildingSitePrefab, targetBuildingSite, Quaternion.identity, transform.parent);
     }
     
     void Update()
     {
-        if (house != null)
+        // Debug ray to destination
+        if (buildingSiteGO != null)
             Debug.DrawRay(transform.position, targetBuildingSite - transform.position, Color.red);
 
+        // Reached destination
         if (navMeshAgent.remainingDistance < 0.05f)
         {
             navMeshAgent.isStopped = true;
             GetComponent<MeshRenderer>().material.SetColor("Color", Color.green);
         }
 
-        // if arrived...jump
+        // if arrived
         if (navMeshAgent.isStopped)
         {
+            // Jump
             ApplyMovement();
             ApplyGravity();
             if (controller.isGrounded)
                 velocity += jumpPower; // Jump
+            
+            // Destroy debug house
+            if (buildingSiteGO != null) GameObject.Destroy(buildingSiteGO);
+
+
+            if (buildingXYZ.Equals(default))
+            {
+                Debug.Log(buildingXYZ);
+                Debug.Log("Target Building Site: " + targetBuildingSite);
+                buildingXYZ = targetBuildingSite.ToInt3(); // Store building location
+                for (var x=0; x<buildingBlueprint.dims.x; x++)
+                    for (var y=0; y<buildingBlueprint.dims.y; y++)
+                    for (var z = 0; z < buildingBlueprint.dims.z; z++)
+                    {
+                        var blueprintXyz = new int3(x, y, z);
+                        var block = buildingBlueprint.blocks[blueprintXyz.ToIndex(buildingBlueprint.dims)];
+                        if (block != Blocks.Instance.Air)
+                        {
+                            var blockId = (ushort) Blocks.Instance.blocks.FindIndex(b => b == block);
+                            var voxelXyz = targetBuildingSite.ToInt3() + blueprintXyz - buildingBlueprint.dims / 2;
+                            Debug.Log($"{block} at {voxelXyz}");
+                            World.Instance.voxels[voxelXyz.ToIndex(World.Instance.dims)] = blockId;
+                        }
+                    }
+                
+                World.Instance.UpdateMesh();
+            }
         }
     }
 

@@ -11,14 +11,14 @@ public class BlueprintMono : MonoBehaviour
 
     private void Start()
     {
-        // GetComponent<MeshFilter>().mesh = blueprint.GenerateMesh();
+        // Copy blocks to voxels array
+        var voxels = new NativeArray<ushort>(blueprint.blocks.Length, Allocator.Temp);
+        for (int i = 0; i < blueprint.blocks.Length; i++)
+            voxels[i] = (ushort) Blocks.Instance.blocks.FindIndex(b => b == blueprint.blocks[i]);
+        
+        var mesh = Mesher.Compute(blueprint.dims, voxels);
+        GetComponent<MeshFilter>().mesh = mesh;
         GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
-        gameObject.name = blueprint.name;
-        
-        // Compute mesh for blueprint voxels
-        
-        
-        
-        
+        gameObject.name = ((Object) blueprint).name;
     }
 }

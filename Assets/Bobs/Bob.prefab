@@ -241,9 +241,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d7671c1e3e26437593047149383ef91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  housePrefab: {fileID: 5741118878855661146, guid: 308e6e0a0cdae44589853e5867c9dc1b,
+  targetBuildingSite: {x: 0, y: 0, z: 0}
+  buildingSitePrefab: {fileID: 5741118878855661146, guid: 308e6e0a0cdae44589853e5867c9dc1b,
     type: 3}
-  house: {fileID: 0}
+  buildingSiteGO: {fileID: 0}
+  buildingXYZ:
+    x: 0
+    y: 0
+    z: 0
+  buildingBlueprint: {fileID: 11400000, guid: 2d6cc6e32cb9a4031a026c58cb3c404c, type: 2}
   controller: {fileID: 3486936189874567053}
   speed: 5
   gravityMultiplier: 1

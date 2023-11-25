@@ -24,10 +24,19 @@ public class Render3D : MonoBehaviour
 
     public Texture2D Snapshot(GameObject go)
     {
+        // Reset stage
+        stage.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        
+        // Position gameObject
         go.transform.parent = stage;
+        var bounds = go.GetComponent<MeshFilter>().mesh.bounds;
+        go.transform.position = -bounds.center;
         go.GetComponent<MeshRenderer>().renderingLayerMask = (uint) LayerMask.NameToLayer("Render3D");
         go.layer = (int) LayerMask.NameToLayer("Render3D");
-            
+        
+        // Rotate stage
+        stage.transform.rotation = Quaternion.Euler(15f, -130f, 15f);
+        
         cam.targetTexture = renderTexture;
         cam.Render();
 

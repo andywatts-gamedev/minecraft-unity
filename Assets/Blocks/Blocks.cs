@@ -13,6 +13,7 @@ public class Blocks : MonoBehaviour
     void Awake()
     {
         _instance = this;
+        AirIndex = (ushort) blocks.FindIndex(b => b == Air);
     }
     
 }

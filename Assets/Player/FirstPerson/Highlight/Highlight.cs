@@ -54,7 +54,6 @@ public class Highlight : MonoBehaviour
         var ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
         if (!Physics.Raycast(ray, out hit)) return;
-        var Voxel = (hit.point - hit.normal * 0.05f).ToInt3();
         var VoxelAdjacent = (hit.point + hit.normal * 0.05f).ToInt3();
         var blockIndex = (ushort) Blocks.Instance.blocks.FindIndex(b => b == Toolbar.Instance.selectedBlock);
         World.Instance.Place(VoxelAdjacent.ToIndex(World.Instance.dims), blockIndex);
@@ -66,8 +65,8 @@ public class Highlight : MonoBehaviour
         var ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
         if (!Physics.Raycast(ray, out hit)) return;
-        var VoxelAdjacent = (hit.point + hit.normal * 0.05f).ToInt3();
-        World.Instance.Remove(VoxelAdjacent.ToIndex(World.Instance.dims));
+        var Voxel = (hit.point - hit.normal * 0.05f).ToInt3();
+        World.Instance.Remove(Voxel.ToIndex(World.Instance.dims));
     }
 
     public void Blueprint(InputAction.CallbackContext context)

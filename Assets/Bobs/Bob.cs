@@ -77,28 +77,34 @@ public class Bob : MonoBehaviour
 
             if (buildingXYZ.Equals(default))
             {
-                Debug.Log(buildingXYZ);
-                Debug.Log("Target Building Site: " + targetBuildingSite);
-                buildingXYZ = targetBuildingSite.ToInt3(); // Store building location
-                for (var x=0; x<buildingBlueprint.dims.x; x++)
-                    for (var y=0; y<buildingBlueprint.dims.y; y++)
-                    for (var z = 0; z < buildingBlueprint.dims.z; z++)
-                    {
-                        var blueprintXyz = new int3(x, y, z);
-                        var block = buildingBlueprint.blocks[blueprintXyz.ToIndex(buildingBlueprint.dims)];
-                        if (block != Blocks.Instance.Air)
-                        {
-                            var blockId = (ushort) Blocks.Instance.blocks.FindIndex(b => b == block);
-                            var voxelXyz = targetBuildingSite.ToInt3() + blueprintXyz - buildingBlueprint.dims / 2;
-                            Debug.Log($"{block} at {voxelXyz}");
-                            World.Instance.voxels[voxelXyz.ToIndex(World.Instance.dims)] = blockId;
-                        }
-                    }
-                
-                World.Instance.UpdateMesh();
+                StartCoroutine(BuildBlueprint());
             }
         }
     }
+
+    private IEnumerator BuildBlueprint()
+    {
+        yield return null;
+        // yield return new WaitForSeconds(2f);
+        buildingXYZ = targetBuildingSite.ToInt3(); // Store building location
+        for (var x = 0; x < buildingBlueprint.dims.x; x++)
+        for (var y = 0; y < buildingBlueprint.dims.y; y++)
+        for (var z = 0; z < buildingBlueprint.dims.z; z++)
+        {
+            var blueprintXyz = new int3(x, y, z);
+            var block = buildingBlueprint.blocks[blueprintXyz.ToIndex(buildingBlueprint.dims)];
+            if (block != Blocks.Instance.Air)
+            {
+                var blockId = (ushort) Blocks.Instance.blocks.FindIndex(b => b == block);
+                var voxelXyz = targetBuildingSite.ToInt3() + blueprintXyz - buildingBlueprint.dims / 2;
+                World.Instance.voxels[voxelXyz.ToIndex(World.Instance.dims)] = blockId;
+            }
+            yield return null;
+        }
+
+        // World.Instance.UpdateMesh();
+    }
+
 
     private void ApplyGravity()
     {

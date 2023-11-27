@@ -14,7 +14,10 @@ public class World : MonoBehaviour
     private static World _instance;
     public static World Instance => _instance;
     
-    public int3 dims;
+    // Action for broadcasting voxel changes
+    public Action<int, ushort> OnVoxelChanged;  // index, blockIndex
+    
+    public int3 dims = new int3(64, 64, 64);
     public NativeArray<ushort> voxels;
     public NativeArray<byte> blockLights;
     public NativeArray<byte> skyLights;
@@ -24,6 +27,12 @@ public class World : MonoBehaviour
     private Mesh mesh;
     private MeshCollider meshCollider;
 
+    [Header("Chunks")]
+    public Transform chunksParent;
+    public GameObject chunkPrefab;
+    public int3 chunkDims;
+    public Dictionary<int3, Chunk> chunks = new Dictionary<int3, Chunk>();
+    
     [Header("Blocks")]
     public Block dirt;
     public Block grassBlock;
@@ -57,52 +66,22 @@ public class World : MonoBehaviour
     private void Start()
     {
         ComputeVoxels();
-        UpdateMesh();
-        CreateBobs();
-        GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
-        // GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
-        // GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
+        
+        for(var x=0; x<dims.x/chunkDims.x; x++)
+        for (var z=0; z < dims.z / chunkDims.z; z++)
+        {
+            var chunkGO = GameObject.Instantiate(chunkPrefab, chunksParent);
+            chunkGO.transform.position = new Vector3(x*chunkDims.x, 0f, z*chunkDims.z);
+            var chunk = chunkGO.GetComponent<Chunk>();
+            chunk.dims = chunkDims;
+            chunk.xyz = new int3(x, 0, z);
+            chunks[chunk.xyz] = chunk;
+            chunkGO.name = chunk.xyz.ToString();
+        }
     }
 
     private void Update()
     {
-        DebugBuildingSites();
-    }
-
-    public void UpdateMesh()
-    {
-        mesh = Mesher.Compute(dims, voxels);
-        GetComponent<MeshFilter>().mesh = mesh;
-        meshCollider.sharedMesh = mesh;
-        ComputeHeightMap();    // TODO still used?
-        GetComponent<NavMeshSurface>().BuildNavMesh();
-        ComputeBuildingSites();  // TODO What to do about Bobs enroute?
-    }
-    
-    private void DebugBuildingSites()
-    {
-        // If enabling building site debug...create buildingSiteDebugGOs
-        if (buildingSitesDebug && buildingSiteDebugGOs.Count == 0)
-            foreach (var buildingSite in buildingSites)
-                buildingSiteDebugGOs.Add( Instantiate(house4x3x4, buildingSite, Quaternion.identity, houses) );
-        
-        // else destroy buildingSiteDebugGOs
-        else if (!buildingSitesDebug && buildingSiteDebugGOs.Count > 0)
-        {
-            foreach (var buildingSiteDebugGO in buildingSiteDebugGOs)
-                GameObject.Destroy(buildingSiteDebugGO);
-            buildingSiteDebugGOs.Clear();
-        }
-    }
-
-    private void CreateBobs()
-    {
-        for (var i = 0; i < numBobs; i++)
-        {
-            var x = UnityEngine.Random.Range(0, dims.x);
-            var z = UnityEngine.Random.Range(0, dims.z);
-            Instantiate(bobPrefab, new Vector3(x, 5f, z), Quaternion.identity, bobs);
-        }
     }
 
     private void ComputeVoxels()
@@ -136,41 +115,7 @@ public class World : MonoBehaviour
         }
     }
 
-    void ComputeBuildingSites()
-    {
-        buildingSites = new List<Vector3>();
-        var buildingDims = new int3(4, 3, 4); // Assuming no overhangs
-        // loop over x and z in heightmap and look for flat areas of 4x4
-        for (var x = 0; x < dims.x; x++)
-        for (var z = 0; z < dims.z; z++)
-        {
-            var height = heightMap[x, z];
-            if (height == 0)
-                continue;
-            
-            var isFlat = true;
-            for (var dx = 0; dx < buildingDims.x; dx++)
-            for (var dz = 0; dz < buildingDims.z; dz++)
-            {
-                if (x + dx >= dims.x || z + dz >= dims.z || heightMap[x + dx, z + dz] != height)
-                {
-                    isFlat = false;
-                    break;
-                }
-            }
-
-            if (isFlat)
-            {
-                // Debug.Log($"Found flat area at {x}, {z} with height {height}");
-                var offset = new Vector3(2f, 0f, 2f); // Building is 4x3x4
-                Debug.Log($"Height: {height} \t Total: {height+(buildingDims.y/2f)}");
-                buildingSites.Add(new Vector3(x, height+1f+(buildingDims.y/2f), z) + offset);
-                return; // Temp do one building only
-            }
-        }
-    }
-
-    private void ComputeHeightMap()
+    public void ComputeHeightMap()
     {
         heightMap = new int[dims.x, dims.z];
         for (var x = 0; x < dims.x; x++)
@@ -191,4 +136,38 @@ public class World : MonoBehaviour
         voxels.Dispose();
     }
 
+    public void Place(int voxelIndex, ushort blockIndex)
+    {
+        voxels[voxelIndex] = blockIndex;
+        UpdateChunkMeshes(voxelIndex);
+        OnVoxelChanged?.Invoke(voxelIndex, blockIndex);
+    }
+
+    public void Remove(int voxelIndex)
+    {
+        voxels[voxelIndex] = Blocks.Instance.AirIndex;
+        UpdateChunkMeshes(voxelIndex);
+        OnVoxelChanged?.Invoke(voxelIndex, Blocks.Instance.AirIndex);
+    }
+    
+    private void UpdateChunkMeshes(int voxelIndex)
+    {
+        var voxelXyz = voxelIndex.ToInt3(dims);
+        var chunkXyz = voxelXyz / chunkDims;
+        chunks[chunkXyz].UpdateMesh();
+        
+        if (voxelXyz.x % chunkDims.x == 0 && chunks.ContainsKey(chunkXyz - new int3(1, 0, 0)))
+            chunks[chunkXyz - new int3(1, 0, 0)].UpdateMesh();
+        else if (voxelXyz.x % chunkDims.x == chunkDims.x - 1 && chunks.ContainsKey(chunkXyz + new int3(1, 0, 0)))
+            chunks[chunkXyz + new int3(1, 0, 0)].UpdateMesh();
+        else if (voxelXyz.y % chunkDims.y == 0 && chunks.ContainsKey(chunkXyz - new int3(0, 1, 0)))
+            chunks[chunkXyz - new int3(0, 1, 0)].UpdateMesh();
+        else if (voxelXyz.y % chunkDims.y == chunkDims.y - 1 && chunks.ContainsKey(chunkXyz + new int3(0, 1, 0)))
+            chunks[chunkXyz + new int3(0, 1, 0)].UpdateMesh();
+        else if (voxelXyz.z % chunkDims.z == 0 && chunks.ContainsKey(chunkXyz - new int3(0, 0, 1)))
+            chunks[chunkXyz - new int3(0, 0, 1)].UpdateMesh();
+        else if (voxelXyz.z % chunkDims.z == chunkDims.z - 1 && chunks.ContainsKey(chunkXyz + new int3(0, 0, 1)))
+            chunks[chunkXyz + new int3(0, 0, 1)].UpdateMesh();
+    }
+    
 }

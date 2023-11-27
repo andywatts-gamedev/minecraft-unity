@@ -5,55 +5,60 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using static Unity.Mathematics.math;
 
-public class Mesher
+public class WorldMesher
 {
 
-    public static Mesh Compute(int3 dims, NativeArray<ushort> voxels)
+    public static Mesh Compute(int3 chunkDims, int3 chunkStart, int3 worldDims, NativeArray<ushort> voxels)
     {
-        var faces = ComputeFaces(dims, voxels);
-        return ComputeMesh(dims, faces);
+        var faces = ComputeFaces(chunkDims, chunkStart, worldDims, voxels);
+        return ComputeMesh(chunkDims, chunkStart, worldDims, faces);
     }
-
-    private static NativeArray<Face> ComputeFaces(int3 dims, NativeArray<ushort> voxels)
+    
+    private static NativeArray<Face> ComputeFaces(int3 chunkDims, int3 chunkStart, int3 worldDims, NativeArray<ushort> voxels)
     {
-        var faces = new NativeArray<Face>(dims.Magnitude() * 6, Allocator.Temp);
-        var numFaces = dims.Magnitude() * 6;
-        for (var i = 0; i < numFaces; i++)
+        var faces = new NativeArray<Face>(chunkDims.Magnitude() * 6, Allocator.Temp);
+        var numFaces = chunkDims.Magnitude() * 6;
+        
+        // Loop over chunk in world
+        for (var x=0; x<chunkDims.x; x++)
+        for (var y=0; y<chunkDims.y; y++)
+        for (var z = 0; z < chunkDims.z; z++)
         {
-            var side = i % 6;
-            var voxelIndex = i / 6; // Calculate the voxel index from the job index
-            var voxelXyz = voxelIndex.ToInt3(dims);
+            var voxelXyz = new int3(x, y, z) + chunkStart;
+            var voxelIndex = voxelXyz.ToIndex(worldDims);
             var voxel = voxels[voxelIndex];
-            // Debug.Log($"voxel {voxelXyz} = {voxels[voxelIndex]}");
 
-            var adjacentVoxelXyz = voxelXyz + Offsets[side];
-            var adjacentVoxelIndex = adjacentVoxelXyz.ToIndex(dims);
-            var adjacentIsWithinBounds = IsWithinBounds(adjacentVoxelXyz, dims);
-            var adjacentVoxel = (ushort)(adjacentIsWithinBounds ? voxels[adjacentVoxelIndex] : 0);
-            // Debug.Log($"adjacentVoxelXyz {adjacentVoxelXyz} = {voxels[voxelIndex]}");
-
-            if (IsFaceVisible(Blocks.Instance.blocks[voxel].Type, Blocks.Instance.blocks[adjacentVoxel].Type))
+            for (var side = 0; side < 6; side++)
             {
-                // Debug.Log($"Got face {side} for voxel {voxel} at {voxelXyz}  {(byte)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex}");
-                var textureObject = Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject;
-                faces[i] = new Face
+                var adjacentVoxelXyz = voxelXyz + Offsets[side];
+                var adjacentVoxelIndex = adjacentVoxelXyz.ToIndex(worldDims);
+                var adjacentIsWithinBounds = IsWithinBounds(adjacentVoxelXyz, worldDims);
+                var adjacentVoxel = (ushort) (adjacentIsWithinBounds ? voxels[adjacentVoxelIndex] : 0);
+
+                // Debug.Log($"voxel: {voxelXyz} {Blocks.Instance.blocks[voxel].name};  {(Side)side}  adjacentVoxel: {adjacentVoxelXyz} {Blocks.Instance.blocks[adjacentVoxel].name}");
+
+                if (IsFaceVisible(Blocks.Instance.blocks[voxel].Type, Blocks.Instance.blocks[adjacentVoxel].Type))
                 {
-                    TextureIndex = (ushort)textureObject.TextureIndex,
-                    BlockType    = Blocks.Instance.blocks[voxel].Type,
-                    // BlockLight   = adjacentIsWithinBounds ? blockLights[adjacentVoxelIndex] : blockLightDefault,
-                    // SkyLight     = adjacentIsWithinBounds ? skyLights[adjacentVoxelIndex] : skyLightDefault,
-                    BlockLight   = 0,
-                    SkyLight     = 0,
-                    Metallic     = adjacentIsWithinBounds ? textureObject.Metallic : (byte)0,
-                    Smoothness   = adjacentIsWithinBounds ? textureObject.Smoothness : (byte)0,
-                };
+                    var textureObject = Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject;
+                    var i = new int3(x, y, z).ToIndex(chunkDims) * 6 + side;
+                    faces[i] = new Face
+                    {
+                        TextureIndex = (ushort)textureObject.TextureIndex,
+                        BlockType    = Blocks.Instance.blocks[voxel].Type,
+                        // BlockLight   = adjacentIsWithinBounds ? blockLights[adjacentVoxelIndex] : blockLightDefault,
+                        // SkyLight     = adjacentIsWithinBounds ? skyLights[adjacentVoxelIndex] : skyLightDefault,
+                        BlockLight   = 0,
+                        SkyLight     = 0,
+                        Metallic     = adjacentIsWithinBounds ? textureObject.Metallic : (byte)0,
+                        Smoothness   = adjacentIsWithinBounds ? textureObject.Smoothness : (byte)0,
+                    };
+                }
             }
         }
-        // Debug.Log($"Got {faces.Count(f => !f.Equals(default(Face)))} faces");
         return faces;
     }
 
-    private static Mesh ComputeMesh(int3 dims, NativeArray<Face> faces)
+    private static Mesh ComputeMesh(int3 chunkDims, int3 chunkStart, int3 worldDims, NativeArray<Face> faces)
     { 
         // Define MeshData
         var numFaces = faces.Count(f => !f.Equals(default(Face))); // Linq
@@ -102,11 +107,12 @@ public class Mesher
             tris.Add((ushort)(faceCount*4 + 3));
             tris.Add((ushort)(faceCount*4 + 0));
                 
+            
             // Vertex
             var voxelIndex = i / 6;
             var side = (Side) (i % 6);
-            var voxelXyz = voxelIndex.ToInt3(dims);
-
+            var voxelXyz = voxelIndex.ToInt3(chunkDims);
+            
             if (side == Side.East)
             {
                 vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(1f, 0f, 0f) + voxelXyz};
@@ -192,128 +198,10 @@ public class Mesher
         return mesh;
     }
 
-    /*
-    public Mesh BlockMesher()
-    {
-        // Create MeshDataArray;  Requires numFaces
-        var numFaces = 6;
-        var meshDataArray = Mesh.AllocateWritableMeshData(1);
-        var meshData = meshDataArray[0];
-        meshData.SetVertexBufferParams(numFaces * 4, new[]
-        {
-            new VertexAttributeDescriptor(VertexAttribute.Position, dimension: 3, stream: 0),
-            new VertexAttributeDescriptor(VertexAttribute.Normal, dimension: 3, stream: 0),
-            new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, dimension: 4, stream: 0),
-            new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, dimension: 2, stream: 1),
-            new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, dimension: 4, stream: 2)
-        });
-        meshData.SetIndexBufferParams(numFaces * 6, IndexFormat.UInt16);
-
-        
-        
-        // VERTICES
-        var vertexStream0 = meshData.GetVertexData<VertexStream0>(0);
-        var offset = new float3(0.5f, 0.5f, 0.5f);
-        
-        // East
-        vertexStream0[0 * 4 + 0] = new VertexStream0 {Position = new float3(1f, 0f, 0f) - offset };
-        vertexStream0[0 * 4 + 1] = new VertexStream0 {Position = new float3(1f, 1f, 0f) - offset };
-        vertexStream0[0 * 4 + 2] = new VertexStream0 {Position = new float3(1f, 1f, 1f) - offset };
-        vertexStream0[0 * 4 + 3] = new VertexStream0 {Position = new float3(1f, 0f, 1f) - offset };
-        
-        // Up
-        vertexStream0[1 * 4 + 0] = new VertexStream0 {Position = new float3(0f, 1f, 0f) - offset };
-        vertexStream0[1 * 4 + 1] = new VertexStream0 {Position = new float3(0f, 1f, 1f) - offset };
-        vertexStream0[1 * 4 + 2] = new VertexStream0 {Position = new float3(1f, 1f, 1f) - offset };
-        vertexStream0[1 * 4 + 3] = new VertexStream0 {Position = new float3(1f, 1f, 0f) - offset };
-        
-        // North
-        vertexStream0[2 * 4 + 0] = new VertexStream0 {Position = new float3(1f, 0f, 1f) - offset };
-        vertexStream0[2 * 4 + 1] = new VertexStream0 {Position = new float3(1f, 1f, 1f) - offset };
-        vertexStream0[2 * 4 + 2] = new VertexStream0 {Position = new float3(0f, 1f, 1f) - offset };
-        vertexStream0[2 * 4 + 3] = new VertexStream0 {Position = new float3(0f, 0f, 1f) - offset };
-        
-        // West
-        vertexStream0[3 * 4 + 0] = new VertexStream0 {Position = new float3(0f, 0f, 1f) - offset };
-        vertexStream0[3 * 4 + 1] = new VertexStream0 {Position = new float3(0f, 1f, 1f) - offset };
-        vertexStream0[3 * 4 + 2] = new VertexStream0 {Position = new float3(0f, 1f, 0f) - offset };
-        vertexStream0[3 * 4 + 3] = new VertexStream0 {Position = new float3(0f, 0f, 0f) - offset };
-        
-        // Down
-        vertexStream0[4 * 4 + 0] = new VertexStream0 {Position = new float3(0f, 0f, 0f) - offset };
-        vertexStream0[4 * 4 + 1] = new VertexStream0 {Position = new float3(1f, 0f, 0f) - offset };
-        vertexStream0[4 * 4 + 2] = new VertexStream0 {Position = new float3(1f, 0f, 1f) - offset };
-        vertexStream0[4 * 4 + 3] = new VertexStream0 {Position = new float3(0f, 0f, 1f) - offset };
-        
-        // South
-        vertexStream0[5 * 4 + 0] = new VertexStream0 {Position = new float3(0f, 0f, 0f) - offset };
-        vertexStream0[5 * 4 + 1] = new VertexStream0 {Position = new float3(0f, 1f, 0f) - offset };
-        vertexStream0[5 * 4 + 2] = new VertexStream0 {Position = new float3(1f, 1f, 0f) - offset };
-        vertexStream0[5 * 4 + 3] = new VertexStream0 {Position = new float3(1f, 0f, 0f) - offset };
-        
-        
-        
-        // Triangles
-        var triangles = meshData.GetIndexData<ushort>();
-        var texCoords = meshData.GetVertexData<half2>(1);
-        var colors = meshData.GetVertexData<Color32>(2);
-        var opaqueTriangles = new NativeList<ushort>(Allocator.Temp);
-        var transparentTriangles = new NativeList<ushort>(Allocator.Temp);
-        var alphaClipTriangles = new NativeList<ushort>(Allocator.Temp);
-        
-        NativeList<ushort> tris;
-        if (Type == BlockType.AlphaClip)
-            tris = alphaClipTriangles;
-        else if (Type == BlockType.Transparent)
-            tris = transparentTriangles;
-        else 
-            tris = opaqueTriangles;
-        
-        for (var i = 0; i < 6; i++)
-        {
-            // Tris
-            tris.Add((ushort)(i*4 + 0));
-            tris.Add((ushort)(i*4 + 1));
-            tris.Add((ushort)(i*4 + 2));
-            tris.Add((ushort)(i*4 + 2));
-            tris.Add((ushort)(i*4 + 3));
-            tris.Add((ushort)(i*4 + 0));
-            
-            // UVs
-            texCoords[i*4 + 0] = (half)0;
-            texCoords[i*4 + 1] = new half2((half)0, (half)1);
-            texCoords[i*4 + 2] = (half)1;
-            texCoords[i*4 + 3] = new half2((half)1, (half)0);
-
-            // TextureIndex
-            var textureIndex = (byte) SideTextures[i].TextureObject.TextureIndex;
-            colors[i*4 + 0] = new Color32(0, 0, 0,textureIndex);
-            colors[i*4 + 1] = new Color32(0, 0, 0,textureIndex);
-            colors[i*4 + 2] = new Color32(0, 0, 0,textureIndex);
-            colors[i*4 + 3] = new Color32(0, 0, 0,textureIndex); 
-        }
-        
-        for (var i = 0; i < opaqueTriangles.Length; i++)
-            triangles[i] = opaqueTriangles[i];
-        for (var i = 0; i < alphaClipTriangles.Length; i++)
-            triangles[opaqueTriangles.Length +  i] = alphaClipTriangles[i];
-        for (var i = 0; i < transparentTriangles.Length; i++)
-            triangles[opaqueTriangles.Length + alphaClipTriangles.Length + i] = transparentTriangles[i];
-
-        
-        meshData.subMeshCount = 3;
-        meshData.SetSubMesh(0, new SubMeshDescriptor(0, opaqueTriangles.Length));
-        meshData.SetSubMesh(1, new SubMeshDescriptor(opaqueTriangles.Length, alphaClipTriangles.Length));
-        meshData.SetSubMesh(2, new SubMeshDescriptor(opaqueTriangles.Length + alphaClipTriangles.Length, transparentTriangles.Length));
-
-        var mesh = new Mesh();
-        // mesh.name = name;
-        Mesh.ApplyAndDisposeWritableMeshData(meshDataArray, mesh);
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
-        return mesh;
-    }
-      */ 
+    
+    
+    
+     // ---- Statics
     
      private static bool IsWithinBounds(int3 voxel, int3 dimensions)
      {

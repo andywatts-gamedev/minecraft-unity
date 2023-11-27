@@ -16,6 +16,10 @@ public class Highlight : MonoBehaviour
     {
         _instance = this;
     }
+    private void Start()
+    {
+        World.Instance.OnVoxelChanged += (_, _) => MoveHighlight();
+    }
 
     private void Update()
     {
@@ -53,8 +57,7 @@ public class Highlight : MonoBehaviour
         var Voxel = (hit.point - hit.normal * 0.05f).ToInt3();
         var VoxelAdjacent = (hit.point + hit.normal * 0.05f).ToInt3();
         var blockIndex = (ushort) Blocks.Instance.blocks.FindIndex(b => b == Toolbar.Instance.selectedBlock);
-        World.Instance.voxels[VoxelAdjacent.ToIndex(World.Instance.dims)] = blockIndex;
-        World.Instance.UpdateMesh();
+        World.Instance.Place(VoxelAdjacent.ToIndex(World.Instance.dims), blockIndex);
     }
 
     public void Remove(InputAction.CallbackContext context)
@@ -63,9 +66,8 @@ public class Highlight : MonoBehaviour
         var ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
         if (!Physics.Raycast(ray, out hit)) return;
-        var voxel = (hit.point - hit.normal * 0.05f).ToInt3();
-        World.Instance.voxels[voxel.ToIndex(World.Instance.dims)] = (ushort) Blocks.Instance.blocks.FindIndex(b => b == Blocks.Instance.Air);
-        World.Instance.UpdateMesh();
+        var VoxelAdjacent = (hit.point + hit.normal * 0.05f).ToInt3();
+        World.Instance.Remove(VoxelAdjacent.ToIndex(World.Instance.dims));
     }
 
     public void Blueprint(InputAction.CallbackContext context)
@@ -96,7 +98,7 @@ public class Highlight : MonoBehaviour
             blueprintStartXyz = default;
             
             var datetime = System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-            var path = $"Assets/Resources/Blueprints/blueprint-{datetime}.asset";
+            var path = $"Assets/Blueprints/blueprint-{datetime}.asset";
             UnityEditor.AssetDatabase.CreateAsset(blueprint, path);
             Debug.Log($"Created blueprint at {path}");
         }

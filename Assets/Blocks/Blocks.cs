@@ -8,6 +8,7 @@ public class Blocks : MonoBehaviour
     public static Blocks Instance => _instance;
     public List<Block> blocks;
     public Block Air;
+    public ushort AirIndex;
 
     void Awake()
     {

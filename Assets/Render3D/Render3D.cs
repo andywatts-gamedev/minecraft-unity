@@ -41,9 +41,9 @@ public class Render3D : MonoBehaviour
         cam.Render();
 
         // Copy temp renderTexture
-        RenderTexture saveActive = RenderTexture.active;
+        var saveActive = RenderTexture.active;
         RenderTexture.active = cam.targetTexture;
-        Texture2D texture = new Texture2D(cam.targetTexture.width, cam.targetTexture.height, TextureFormat.ARGB32, false, true);
+        var texture = new Texture2D(cam.targetTexture.width, cam.targetTexture.height, TextureFormat.ARGB32, false, true);
         texture.ReadPixels(new Rect(0, 0, cam.targetTexture.width, cam.targetTexture.height), 0, 0);
         texture.Apply();
         RenderTexture.active = saveActive;

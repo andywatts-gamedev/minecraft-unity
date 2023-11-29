@@ -83,8 +83,8 @@ public class WorldMesher
 
 
         var opaqueTriangles = new NativeList<ushort>(Allocator.Temp);
-        var transparentTriangles = new NativeList<ushort>(Allocator.Temp);
         var alphaClipTriangles = new NativeList<ushort>(Allocator.Temp);
+        var transparentTriangles = new NativeList<ushort>(Allocator.Temp);
         NativeList<ushort> tris;
         
         var faceCount = 0;

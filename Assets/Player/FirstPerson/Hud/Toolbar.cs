@@ -32,7 +32,9 @@ public class Toolbar : MonoBehaviour
         var blockGO = Instantiate(blockPrefab);
         var meshFilter = blockGO.GetComponent<MeshFilter>();
         blockGO.GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
-
+        blockGO.GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
+        blockGO.GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
+        
         // Populate toolbar
         foreach (var (block, slotIndex) in blocks.Select((value, i) => (value, i)))
         {

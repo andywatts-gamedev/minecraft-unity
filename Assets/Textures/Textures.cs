@@ -6,6 +6,7 @@ public class Textures : MonoBehaviour
 {
     private static Textures _instance;
     public static Textures Instance => _instance;
+
     
     public int maxTextures = 32;
     
@@ -41,7 +42,8 @@ public class Textures : MonoBehaviour
             TransparentTextures[i].TextureIndex = i;
             Graphics.CopyTexture(TransparentTextures[i].Texture, 0, 0, transTexture2DArray, i, 0);
         }
+
     }
-    
+   
 }
 

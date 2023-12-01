@@ -5,18 +5,21 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 public class Toolbar : MonoBehaviour
 {
     public int selectedItem;
-    public Block selectedBlock;
-    public List<Block> blocks;
+    public BlockState selectedBlockState;
+    public List<BlockState> blockStates;
     public GameObject blockPrefab;
     private VisualElement root;
     private UQueryBuilder<VisualElement> slots;
     private VisualElement toolbar;
     public static Toolbar Instance { get; private set; }
+    public int Rotation;
+    public GameObject blockGO;
 
     private void Awake()
     {
@@ -29,22 +32,21 @@ public class Toolbar : MonoBehaviour
         toolbar = root.Q<VisualElement>("toolbar");
         slots = toolbar.Query<VisualElement>("toolbarSlot");
 
-        var blockGO = Instantiate(blockPrefab);
+        blockGO = Instantiate(blockPrefab);
         var meshFilter = blockGO.GetComponent<MeshFilter>();
         blockGO.GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
         blockGO.GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
         blockGO.GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
         
         // Populate toolbar
-        foreach (var (block, slotIndex) in blocks.Select((value, i) => (value, i)))
+        foreach (var (blockState, slotIndex) in blockStates.Select((value, i) => (value, i)))
         {
-            meshFilter.mesh = block.GenerateMesh();
+            meshFilter.mesh = blockState.Block.GenerateMesh();
             var texture = Render3D.Instance.Snapshot(blockGO);
             var slot = slots.AtIndex(slotIndex);
             var image = new Image();
             image.image = texture; 
-            if (slot.childCount > 0)
-                slot.RemoveAt(0);
+            if (slot.childCount > 0) slot.RemoveAt(0);
             slot.Add(image);
         }
         SetActiveItem(0);
@@ -93,9 +95,19 @@ public class Toolbar : MonoBehaviour
     public void SetActiveItem(int slotIndex)
     {
         selectedItem = slotIndex;
-        selectedBlock = blocks[slotIndex];
+        selectedBlockState = blockStates[slotIndex];
         for (var i = 0; i < 10; i++)
             slots.AtIndex(i).RemoveFromClassList("toolbarSlotActive");
         slots.AtIndex(slotIndex).AddToClassList("toolbarSlotActive");
+    }
+    
+    public void RotateClockWise(InputAction.CallbackContext context)
+    {
+        if (!context.started) return;
+        Rotation = (Rotation + 1) % 4;
+        var meshFilter = blockGO.GetComponent<MeshFilter>();
+        meshFilter.mesh = selectedBlockState.Block.GenerateMesh();
+        var texture = Render3D.Instance.Snapshot(blockGO);
+        SetItem(selectedItem, texture);
     }
 }

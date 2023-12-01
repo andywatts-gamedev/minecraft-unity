@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3053be8ddbe6c46f7bccd4da852cacb5, type: 3}
   m_Name: Stone
   m_EditorClassIdentifier: 
-  Name: Stone
+  BlockName: 
   Type: 1
+  TextureType: 1
   SideTextures:
   - Side: 0
     TextureObject: {fileID: 11400000, guid: 81ef5994b357b49a49d95baabc785897, type: 2}
@@ -27,3 +28,5 @@ MonoBehaviour:
     TextureObject: {fileID: 11400000, guid: 81ef5994b357b49a49d95baabc785897, type: 2}
   - Side: 5
     TextureObject: {fileID: 11400000, guid: 81ef5994b357b49a49d95baabc785897, type: 2}
+  ModelElements: []
+  image: {fileID: 0}

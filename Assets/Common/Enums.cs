@@ -11,11 +11,20 @@ public enum Side : byte
 public enum BlockType
 {
     Air,
+    Cube,
+    Model,
+}
+
+public enum TextureType
+{
+    None,
     Opaque,
     Transparent,
     AlphaClip,
-    Model,
 }
+
+
+
 
 public enum ChunkType
 {

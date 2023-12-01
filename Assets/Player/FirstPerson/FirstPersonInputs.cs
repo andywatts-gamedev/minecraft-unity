@@ -89,6 +89,24 @@ public partial class @FirstPersonInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateClockwise"",
+                    ""type"": ""Button"",
+                    ""id"": ""7d577416-4439-4019-ab0b-18c479024c71"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateCounterClockwise"",
+                    ""type"": ""Button"",
+                    ""id"": ""83ecc56e-42b5-4f37-9883-105597c2aa16"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -452,6 +470,28 @@ public partial class @FirstPersonInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4f0920db-b5f5-4cc0-91b2-986c8065d86e"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateClockwise"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""58b356cf-60f7-49f9-afc6-a528b74dc767"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateCounterClockwise"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1046,6 +1086,8 @@ public partial class @FirstPersonInputs: IInputActionCollection2, IDisposable
         m_Player_Remove = m_Player.FindAction("Remove", throwIfNotFound: true);
         m_Player_Blueprint = m_Player.FindAction("Blueprint", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
+        m_Player_RotateClockwise = m_Player.FindAction("RotateClockwise", throwIfNotFound: true);
+        m_Player_RotateCounterClockwise = m_Player.FindAction("RotateCounterClockwise", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1126,6 +1168,8 @@ public partial class @FirstPersonInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Remove;
     private readonly InputAction m_Player_Blueprint;
     private readonly InputAction m_Player_Jump;
+    private readonly InputAction m_Player_RotateClockwise;
+    private readonly InputAction m_Player_RotateCounterClockwise;
     public struct PlayerActions
     {
         private @FirstPersonInputs m_Wrapper;
@@ -1137,6 +1181,8 @@ public partial class @FirstPersonInputs: IInputActionCollection2, IDisposable
         public InputAction @Remove => m_Wrapper.m_Player_Remove;
         public InputAction @Blueprint => m_Wrapper.m_Player_Blueprint;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
+        public InputAction @RotateClockwise => m_Wrapper.m_Player_RotateClockwise;
+        public InputAction @RotateCounterClockwise => m_Wrapper.m_Player_RotateCounterClockwise;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1167,6 +1213,12 @@ public partial class @FirstPersonInputs: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
+            @RotateClockwise.started += instance.OnRotateClockwise;
+            @RotateClockwise.performed += instance.OnRotateClockwise;
+            @RotateClockwise.canceled += instance.OnRotateClockwise;
+            @RotateCounterClockwise.started += instance.OnRotateCounterClockwise;
+            @RotateCounterClockwise.performed += instance.OnRotateCounterClockwise;
+            @RotateCounterClockwise.canceled += instance.OnRotateCounterClockwise;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1192,6 +1244,12 @@ public partial class @FirstPersonInputs: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
+            @RotateClockwise.started -= instance.OnRotateClockwise;
+            @RotateClockwise.performed -= instance.OnRotateClockwise;
+            @RotateClockwise.canceled -= instance.OnRotateClockwise;
+            @RotateCounterClockwise.started -= instance.OnRotateCounterClockwise;
+            @RotateCounterClockwise.performed -= instance.OnRotateCounterClockwise;
+            @RotateCounterClockwise.canceled -= instance.OnRotateCounterClockwise;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1381,6 +1439,8 @@ public partial class @FirstPersonInputs: IInputActionCollection2, IDisposable
         void OnRemove(InputAction.CallbackContext context);
         void OnBlueprint(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnRotateClockwise(InputAction.CallbackContext context);
+        void OnRotateCounterClockwise(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

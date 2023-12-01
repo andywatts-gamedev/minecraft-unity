@@ -1,4 +1,5 @@
 using Unity.Mathematics;
+using UnityEngine.Serialization;
 
 public struct VertexStream0
 {
@@ -10,7 +11,7 @@ public struct VertexStream0
 public struct Face
 {
     public ushort TextureIndex;
-    public BlockType BlockType;
+    public TextureType TextureType;
     public byte SkyLight;
     public byte BlockLight;
     public byte Smoothness;

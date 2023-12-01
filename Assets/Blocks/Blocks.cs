@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class Blocks : MonoBehaviour
 {
     private static Blocks _instance;
     public static Blocks Instance => _instance;
     public List<Block> blocks;
+    public List<BlockState> BlockStates;
     public Block Air;
     public ushort AirIndex;
     
@@ -23,6 +23,11 @@ public class Blocks : MonoBehaviour
     private void Start()
     {
         if (debug) DebugBlocks();
+        
+        // Create initial blockStates
+        BlockStates = new List<BlockState>();
+        foreach (var block in blocks)
+            BlockStates.Add(new BlockState { Block = block });
     }
 
     

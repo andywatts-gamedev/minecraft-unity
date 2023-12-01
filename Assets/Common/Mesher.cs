@@ -32,14 +32,16 @@ public class Mesher
             var adjacentVoxel = (ushort)(adjacentIsWithinBounds ? voxels[adjacentVoxelIndex] : 0);
             // Debug.Log($"adjacentVoxelXyz {adjacentVoxelXyz} = {voxels[voxelIndex]}");
 
-            if (IsFaceVisible(Blocks.Instance.blocks[voxel].Type, Blocks.Instance.blocks[adjacentVoxel].Type))
+            var block = Blocks.Instance.blocks[voxel];
+            var otherBlock = Blocks.Instance.blocks[adjacentVoxel];
+            if (IsFaceVisible(block, otherBlock))
             {
                 // Debug.Log($"Got face {side} for voxel {voxel} at {voxelXyz}  {(byte)Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject.TextureIndex}");
                 var textureObject = Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject;
                 faces[i] = new Face
                 {
                     TextureIndex = (ushort)textureObject.TextureIndex,
-                    BlockType    = Blocks.Instance.blocks[voxel].Type,
+                    TextureType    = Blocks.Instance.blocks[voxel].TextureType,
                     // BlockLight   = adjacentIsWithinBounds ? blockLights[adjacentVoxelIndex] : blockLightDefault,
                     // SkyLight     = adjacentIsWithinBounds ? skyLights[adjacentVoxelIndex] : skyLightDefault,
                     BlockLight   = 0,
@@ -89,9 +91,9 @@ public class Mesher
                 continue;
 
             // Triangles
-            if (faces[i].BlockType == BlockType.AlphaClip)
+            if (faces[i].TextureType == TextureType.AlphaClip)
                 tris = alphaClipTriangles;
-            else if (faces[i].BlockType == BlockType.Transparent)
+            else if (faces[i].TextureType == TextureType.Transparent)
                 tris = transparentTriangles;
             else 
                 tris = opaqueTriangles;
@@ -170,6 +172,7 @@ public class Mesher
             
             faceCount++;
         }
+        Debug.Log(faces.Length);
         
         // Triangles
         for (var i = 0; i < opaqueTriangles.Length; i++)
@@ -198,18 +201,22 @@ public class Mesher
                 voxel.y >= 0 && voxel.y < dimensions.y &&
                 voxel.z >= 0 && voxel.z < dimensions.z;
      }
-
-     private static bool IsFaceVisible(BlockType blockType, BlockType otherBlockType)
-     {
-         return blockType switch
-         {
-             BlockType.Opaque => otherBlockType != BlockType.Opaque,
-             BlockType.AlphaClip => otherBlockType != BlockType.Opaque,
-             BlockType.Transparent => otherBlockType != BlockType.Opaque && otherBlockType != BlockType.Transparent,
-             _ => false
-         };
-     }
- 
+     
+    private static bool IsFaceVisible(Block block, Block otherBlock)
+    {
+        // If cube..check adjacent cube texture type
+        if (block.Type == BlockType.Cube && otherBlock.Type == BlockType.Cube)
+            return block.TextureType switch
+            {
+                TextureType.Opaque => otherBlock.TextureType != TextureType.Opaque,
+                TextureType.AlphaClip => otherBlock.TextureType != TextureType.Opaque,
+                TextureType.Transparent => otherBlock.TextureType != TextureType.Opaque && otherBlock.TextureType != TextureType.Transparent,
+                _ => false
+            };
+        
+        return true;
+    }
+     
      static byte PackValues(byte value1, byte value2)
     {
         // Ensure that values are within the 4-bit range

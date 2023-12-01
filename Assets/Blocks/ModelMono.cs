@@ -23,7 +23,15 @@ public class ModelMono : MonoBehaviour
         var opaqueTriangles = new NativeList<ushort>(Allocator.Temp);
         var transparentTriangles = new NativeList<ushort>(Allocator.Temp);
         var alphaClipTriangles = new NativeList<ushort>(Allocator.Temp);
-        var tris = alphaClipTriangles;
+
+
+        NativeList<ushort> tris;
+        if (block.TextureType == TextureType.AlphaClip)
+            tris = alphaClipTriangles;
+        else if (block.TextureType == TextureType.Transparent)
+            tris = transparentTriangles;
+        else
+            tris = opaqueTriangles;
 
         var f = 0;
         foreach (var element in block.ModelElements)
@@ -42,10 +50,10 @@ public class ModelMono : MonoBehaviour
 
             if (element.Up != null)
             {
-                verts[f*4+0] = new VertexStream0 {Position = new float3(element.From.x/16f, element.To.y/16f, element.From.z/16f)};
-                verts[f*4+1] = new VertexStream0 {Position = new float3(element.From.x/16f, element.To.y/16f, element.To.z/16f)};
-                verts[f*4+2] = new VertexStream0 {Position = new float3(element.To.x/16f, element.To.y/16f, element.To.z/16f)};
-                verts[f*4+3] = new VertexStream0 {Position = new float3(element.To.x/16f, element.To.y/16f, element.From.z/16f)};
+                verts[f*4+3] = new VertexStream0 {Position = new float3(element.From.x/16f, element.To.y/16f, element.From.z/16f)};
+                verts[f*4+0] = new VertexStream0 {Position = new float3(element.From.x/16f, element.To.y/16f, element.To.z/16f)};
+                verts[f*4+1] = new VertexStream0 {Position = new float3(element.To.x/16f, element.To.y/16f, element.To.z/16f)};
+                verts[f*4+2] = new VertexStream0 {Position = new float3(element.To.x/16f, element.To.y/16f, element.From.z/16f)};
                 AddTris(tris, f);
                 AddTexCoords(texCoords, f, element.UpUvs);
                 AddColors(f, (byte)element.Up.TextureIndex, ref colors);

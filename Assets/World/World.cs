@@ -33,11 +33,6 @@ public class World : MonoBehaviour
     public int3 chunkDims;
     public Dictionary<int3, Chunk> chunks = new Dictionary<int3, Chunk>();
     
-    [Header("Blocks")]
-    public Block dirt;
-    public Block grassBlock;
-    public Block air;
-    
     [Header("WIP")]
     // public GameObject torchPrefab;
     public byte blockLightDefault;
@@ -92,7 +87,7 @@ public class World : MonoBehaviour
         {
             var xyz = i.ToInt3(dims);
             if (chunkType == ChunkType.Flat)
-                voxels[i] = (ushort)(xyz.y < 1 ? (ushort)Blocks.Instance.blocks.FindIndex(b => b == grassBlock) : 0); 
+                voxels[i] = (ushort)(xyz.y < 1 ? (ushort)Blocks.Instance.BlockStates.FindIndex(b => b.Block.BlockName == "Grass Block") : 0); 
             
             else if (chunkType == ChunkType.Terrain)
             {
@@ -101,13 +96,13 @@ public class World : MonoBehaviour
                 var xCoord = (float)xyz.x * scale;
                 var zCoord = (float)xyz.z * scale;
                 var height = Mathf.PerlinNoise(xCoord, zCoord) * amplitude;
-
+                
                 if (xyz.y < height-1f)
-                    voxels[i] = (ushort)Blocks.Instance.blocks.FindIndex(b => b == dirt);
+                    voxels[i] = (ushort)Blocks.Instance.BlockStates.FindIndex(b => b.Block.BlockName == "Dirt");
                 else if (xyz.y < height)
-                    voxels[i] = (ushort)Blocks.Instance.blocks.FindIndex(b => b == grassBlock);
+                    voxels[i] = (ushort)Blocks.Instance.BlockStates.FindIndex(b => b.Block.BlockName == "Grass Block");
                 else
-                    voxels[i] = (ushort)Blocks.Instance.blocks.FindIndex(b => b == air);
+                    voxels[i] = (ushort)Blocks.Instance.BlockStates.FindIndex(b => b.Block.BlockName == "Air");
             }
             else
                 voxels[i] = 1;

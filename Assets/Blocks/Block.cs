@@ -10,8 +10,9 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "Block", menuName = "Oasis/Block")]
 public class Block : ScriptableObject
 {
-    public string Name;
+    public string BlockName;
     public BlockType Type;
+    [SerializeField] public TextureType TextureType;
     public SideTexture[] SideTextures;
     public ModelElement[] ModelElements;
     public Texture2D image;

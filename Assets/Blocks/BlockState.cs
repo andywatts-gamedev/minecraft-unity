@@ -1,11 +1,13 @@
 using System;
 using Unity.Collections;
+using UnityEngine;
 
 [Serializable]
 public struct BlockState
 {
     public Block Block;
     public FixedList512Bytes<State> States;
+    // [SerializeField] public State[] States;
 }
 
 public struct State : IEquatable<State>

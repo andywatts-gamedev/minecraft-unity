@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +13,8 @@ public class Blocks : MonoBehaviour
     public ushort AirIndex;
     
     public bool debug;
-    public GameObject prefab;
+    public GameObject blockPrefab;
+    public GameObject modelPrefab;
 
     void Awake()
     {
@@ -22,7 +24,7 @@ public class Blocks : MonoBehaviour
 
     private void Start()
     {
-        if (debug) DebugBlocks();
+        if (debug) StartCoroutine(DebugBlocks());
         
         // Create initial blockStates
         BlockStates = new List<BlockState>();
@@ -31,16 +33,24 @@ public class Blocks : MonoBehaviour
     }
 
     
-    private void DebugBlocks()
+    private IEnumerator DebugBlocks()
     {
         for (int i = 0; i < blocks.Count; i++)
         {
             var block = blocks[i];
-            var go = GameObject.Instantiate(prefab);
+            if (block.Type == BlockType.Air) continue;
+            var go = GameObject.Instantiate(block.Type == BlockType.Model ? modelPrefab : blockPrefab);
             go.transform.parent = transform;
             go.name = block.name;
-            go.GetComponent<BlockMono>().block = blocks[i];
             go.transform.position = new Vector3(i*2, 0, 0);
+
+            if (block.Type == BlockType.Model)
+                go.GetComponent<ModelMono>().block = blocks[i];
+                // go.GetComponent<ModelMono>().blockState = new BlockState {Block = blocks[i]};
+            else
+                go.GetComponent<BlockMono>().block = blocks[i];
+            
+            yield return null;
         }
     }
     

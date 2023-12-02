@@ -81,7 +81,7 @@ MonoBehaviour:
     Up: {fileID: 11400000, guid: 1bbe5462ffb59443795c187c2fc507fa, type: 2}
     West: {fileID: 11400000, guid: 1bbe5462ffb59443795c187c2fc507fa, type: 2}
     South: {fileID: 11400000, guid: 1bbe5462ffb59443795c187c2fc507fa, type: 2}
-    Down: {fileID: 11400000, guid: 1bbe5462ffb59443795c187c2fc507fa, type: 2}
+    Down: {fileID: 0}
     UpUvs:
       x: 8
       y: 0

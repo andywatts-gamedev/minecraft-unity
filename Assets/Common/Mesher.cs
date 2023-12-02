@@ -5,6 +5,24 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using static Unity.Mathematics.math;
 
+/*
+SHADER CHANNELS
+Color
+    TextureIndex: float;  TODO 12+ bits
+    Metallic: float
+    Smoothness: float
+
+UV1
+    ModelStartX: float;  TODO half
+    ModelStartY: float;  TODO half
+    ModelSizeX: float;  TODO half
+    ModelSizeY: float;  TODO half
+
+UV2
+    BlockLight: float
+    SkyLight: float
+*/
+
 public class Mesher
 {
 
@@ -67,7 +85,8 @@ public class Mesher
             new VertexAttributeDescriptor( VertexAttribute.Normal, dimension: 3, stream: 0 ),
             new VertexAttributeDescriptor( VertexAttribute.Tangent, VertexAttributeFormat.Float16, dimension: 4, stream: 0 ),
             new VertexAttributeDescriptor( VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, dimension: 2, stream: 1 ),
-            new VertexAttributeDescriptor( VertexAttribute.Color, VertexAttributeFormat.UNorm8, dimension: 4, stream: 2 ),
+            new VertexAttributeDescriptor( VertexAttribute.TexCoord1, VertexAttributeFormat.Float16, dimension: 4, stream: 2 ),  // ModelSizeX, ModelSizeY, ModelStartX, ModelStartY
+            new VertexAttributeDescriptor( VertexAttribute.Color, VertexAttributeFormat.UNorm8, dimension: 4, stream: 3 ), // TextureIndex, Metallic, Smoothness, 0
         });
         meshData.SetIndexBufferParams(numFaces * 6, IndexFormat.UInt16);
         
@@ -75,9 +94,9 @@ public class Mesher
         // Populate MeshData
         var vertexStream0 = meshData.GetVertexData<VertexStream0>(0);
         var triangles = meshData.GetIndexData<ushort>();
-        var texCoords = meshData.GetVertexData<half2>(1);
-        var colors = meshData.GetVertexData<Color32>(2);
-
+        var texCoords0 = meshData.GetVertexData<half2>(1);
+        var texCoords1 = meshData.GetVertexData<half2>(2); // ModelSizeX, ModelSizeY, ModelStartX, ModelStartY
+        var colors = meshData.GetVertexData<Color32>(3); // TextureIndex, Metallic, Smoothness, 0
 
         var opaqueTriangles = new NativeList<ushort>(Allocator.Temp);
         var transparentTriangles = new NativeList<ushort>(Allocator.Temp);
@@ -118,10 +137,10 @@ public class Mesher
             }
             else if (side == Side.Up)
             {
-                vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(0f, 1f, 0f) + voxelXyz};
-                vertexStream0[faceCount*4 + 1] = new VertexStream0 {Position = new float3(0f, 1f, 1f) + voxelXyz};
-                vertexStream0[faceCount*4 + 2] = new VertexStream0 {Position = new float3(1f, 1f, 1f) + voxelXyz};
-                vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(1f, 1f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 0] = new VertexStream0 {Position = new float3(1f, 1f, 1f) + voxelXyz};
+                vertexStream0[faceCount*4 + 1] = new VertexStream0 {Position = new float3(1f, 1f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 2] = new VertexStream0 {Position = new float3(0f, 1f, 0f) + voxelXyz};
+                vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(0f, 1f, 1f) + voxelXyz};
             }
             else if (side == Side.North)
             {
@@ -152,27 +171,31 @@ public class Mesher
                 vertexStream0[faceCount*4 + 3] = new VertexStream0 {Position = new float3(1f, 0f, 0f) + voxelXyz};
             }
             
+            // TexCoord0
+            texCoords0[faceCount*4 + 0] = (half)0;
+            texCoords0[faceCount*4 + 1] = half2((half)0, (half)1);
+            texCoords0[faceCount*4 + 2] = (half)1;
+            texCoords0[faceCount*4 + 3] = half2((half)1, (half)0);
             
-            // Texcoords
-            texCoords[faceCount*4 + 0] = (half)0;
-            texCoords[faceCount*4 + 1] = half2((half)0, (half)1);
-            texCoords[faceCount*4 + 2] = (half)1;
-            texCoords[faceCount*4 + 3] = half2((half)1, (half)0);
+            // TexCoord1; ModelSizeX, ModelSizeY, ModelStartX, ModelStartY
+            // texCoords1[faceCount*4 + 0] = 
+            // texCoords1[faceCount*4 + 1] =
+            // texCoords1[faceCount*4 + 2] = 
+            // texCoords1[faceCount*4 + 3] =
             
-            // Colors
+            
+            // Color; TextureIndex, Metallic, Smoothness, 0
             // TODO consider side and blockType to get textureIndex
-            var textureIndex = (byte)faces[i].TextureIndex;   // Must * 256 in SG to get index
-            var blockLight = faces[i].BlockLight;
-            var skyLight = faces[i].SkyLight;
-            var metallicSmoothness = PackValues(faces[i].Metallic, faces[i].Smoothness);
-            colors[faceCount * 4 + 0] = new Color32(blockLight, skyLight, metallicSmoothness,textureIndex);
-            colors[faceCount * 4 + 1] = new Color32(blockLight, skyLight, metallicSmoothness,textureIndex);
-            colors[faceCount * 4 + 2] = new Color32(blockLight, skyLight, metallicSmoothness,textureIndex);
-            colors[faceCount * 4 + 3] = new Color32(blockLight, skyLight, metallicSmoothness,textureIndex); 
+            var textureIndex = (byte)faces[i].TextureIndex;   // Must *256 in SG to get index
+            var metallic = faces[i].Metallic;
+            var smoothness = faces[i].Smoothness;
+            colors[faceCount * 4 + 0] = new Color32(0, smoothness, metallic, textureIndex);
+            colors[faceCount * 4 + 1] = new Color32(0, smoothness, metallic, textureIndex);
+            colors[faceCount * 4 + 2] = new Color32(0, smoothness, metallic, textureIndex);
+            colors[faceCount * 4 + 3] = new Color32(0, smoothness, metallic, textureIndex); 
             
             faceCount++;
         }
-        Debug.Log(faces.Length);
         
         // Triangles
         for (var i = 0; i < opaqueTriangles.Length; i++)

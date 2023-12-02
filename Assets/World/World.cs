@@ -149,20 +149,20 @@ public class World : MonoBehaviour
     {
         var voxelXyz = voxelIndex.ToInt3(dims);
         var chunkXyz = voxelXyz / chunkDims;
-        chunks[chunkXyz].UpdateMesh();
+        chunks[chunkXyz].UpdateChunk();
         
         if (voxelXyz.x % chunkDims.x == 0 && chunks.ContainsKey(chunkXyz - new int3(1, 0, 0)))
-            chunks[chunkXyz - new int3(1, 0, 0)].UpdateMesh();
+            chunks[chunkXyz - new int3(1, 0, 0)].UpdateChunk();
         else if (voxelXyz.x % chunkDims.x == chunkDims.x - 1 && chunks.ContainsKey(chunkXyz + new int3(1, 0, 0)))
-            chunks[chunkXyz + new int3(1, 0, 0)].UpdateMesh();
+            chunks[chunkXyz + new int3(1, 0, 0)].UpdateChunk();
         else if (voxelXyz.y % chunkDims.y == 0 && chunks.ContainsKey(chunkXyz - new int3(0, 1, 0)))
-            chunks[chunkXyz - new int3(0, 1, 0)].UpdateMesh();
+            chunks[chunkXyz - new int3(0, 1, 0)].UpdateChunk();
         else if (voxelXyz.y % chunkDims.y == chunkDims.y - 1 && chunks.ContainsKey(chunkXyz + new int3(0, 1, 0)))
-            chunks[chunkXyz + new int3(0, 1, 0)].UpdateMesh();
+            chunks[chunkXyz + new int3(0, 1, 0)].UpdateChunk();
         else if (voxelXyz.z % chunkDims.z == 0 && chunks.ContainsKey(chunkXyz - new int3(0, 0, 1)))
-            chunks[chunkXyz - new int3(0, 0, 1)].UpdateMesh();
+            chunks[chunkXyz - new int3(0, 0, 1)].UpdateChunk();
         else if (voxelXyz.z % chunkDims.z == chunkDims.z - 1 && chunks.ContainsKey(chunkXyz + new int3(0, 0, 1)))
-            chunks[chunkXyz + new int3(0, 0, 1)].UpdateMesh();
+            chunks[chunkXyz + new int3(0, 0, 1)].UpdateChunk();
     }
     
 }

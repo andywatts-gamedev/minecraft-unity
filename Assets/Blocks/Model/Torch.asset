@@ -33,14 +33,14 @@ MonoBehaviour:
     Down: {fileID: 11400000, guid: e6507421b65dd4573a635b92dc589341, type: 2}
     UpUvs:
       x: 7
-      y: 6
+      y: 10
       z: 9
       w: 8
     DownUvs:
       x: 7
-      y: 13
+      y: 3
       z: 9
-      w: 15
+      w: 1
     NorthUvs:
       x: 0
       y: 0

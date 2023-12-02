@@ -46,8 +46,8 @@ public class WorldMesher
 
                 // Debug.Log($"voxel: {voxelXyz} {Blocks.Instance.blocks[voxel].name};  {(Side)side}  adjacentVoxel: {adjacentVoxelXyz} {Blocks.Instance.blocks[adjacentVoxel].name}");
 
-                var block = Blocks.Instance.blocks[voxel];
-                var otherBlock = Blocks.Instance.blocks[adjacentVoxel];
+                var block = Blocks.Instance.BlockStates[voxel];
+                var otherBlock = Blocks.Instance.BlockStates[adjacentVoxel];
                 if (IsFaceVisible(block, otherBlock))
                 {
                     var textureObject = Blocks.Instance.blocks[voxel].SideTextures[side].TextureObject;
@@ -76,16 +76,23 @@ public class WorldMesher
         var numFaces = faces.Count(f => !f.Equals(default(Face))); // Linq
         var meshDataArray = Mesh.AllocateWritableMeshData(1);
         var meshData = meshDataArray[0];
-        meshData.SetVertexBufferParams(numFaces * 4, new VertexAttributeDescriptor(VertexAttribute.Position, dimension: 3, stream: 0),
-            new VertexAttributeDescriptor(VertexAttribute.Normal, dimension: 3, stream: 0), new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4, 0),
-            new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2, 1), new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4, 2));
+        meshData.SetVertexBufferParams(numFaces * 4, new[]
+        {
+            new VertexAttributeDescriptor(VertexAttribute.Position, dimension: 3, stream: 0),
+            new VertexAttributeDescriptor(VertexAttribute.Normal, dimension: 3, stream: 0), 
+            new VertexAttributeDescriptor(VertexAttribute.Tangent, VertexAttributeFormat.Float16, 4, 0),
+            new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2, 1), 
+            new VertexAttributeDescriptor( VertexAttribute.TexCoord1, VertexAttributeFormat.Float16, dimension: 4, stream: 2 ),  // ModelSizeX, ModelSizeY, ModelStartX, ModelStartY
+            new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4, 3)
+        });
         meshData.SetIndexBufferParams(numFaces * 6, IndexFormat.UInt16);
 
 
         // Populate MeshData
         var vertexStream0 = meshData.GetVertexData<VertexStream0>();
         var triangles = meshData.GetIndexData<ushort>();
-        var texCoords = meshData.GetVertexData<half2>(1);
+        var texCoords0 = meshData.GetVertexData<half2>(1);
+        var texCoords1 = meshData.GetVertexData<half2>(1);
         var colors = meshData.GetVertexData<Color32>(2);
 
 
@@ -162,24 +169,28 @@ public class WorldMesher
                 vertexStream0[faceCount * 4 + 2] = new VertexStream0 {Position = new float3(1f, 1f, 0f) + voxelXyz};
                 vertexStream0[faceCount * 4 + 3] = new VertexStream0 {Position = new float3(1f, 0f, 0f) + voxelXyz};
             }
-
-
-            // Texcoords
-            texCoords[faceCount * 4 + 0] = (half) 0;
-            texCoords[faceCount * 4 + 1] = half2((half) 0, (half) 1);
-            texCoords[faceCount * 4 + 2] = (half) 1;
-            texCoords[faceCount * 4 + 3] = half2((half) 1, (half) 0);
-
+ 
+            // TexCoord0
+            texCoords0[faceCount*4 + 0] = (half)0;
+            texCoords0[faceCount*4 + 1] = half2((half)0, (half)1);
+            texCoords0[faceCount*4 + 2] = (half)1;
+            texCoords0[faceCount*4 + 3] = half2((half)1, (half)0);
+            
+            // TexCoord1; ModelSizeX, ModelSizeY, ModelStartX, ModelStartY
+            // texCoords1[faceCount*4 + 0] = 
+            // texCoords1[faceCount*4 + 1] =
+            // texCoords1[faceCount*4 + 2] = 
+            // texCoords1[faceCount*4 + 3] =
+            
             // Colors
             // TODO consider side and blockType to get textureIndex
-            var textureIndex = (byte) faces[i].TextureIndex; // Must * 256 in SG to get index
-            var blockLight = faces[i].BlockLight;
-            var skyLight = faces[i].SkyLight;
-            var metallicSmoothness = PackValues(faces[i].Metallic, faces[i].Smoothness);
-            colors[faceCount * 4 + 0] = new Color32(blockLight, skyLight, metallicSmoothness, textureIndex);
-            colors[faceCount * 4 + 1] = new Color32(blockLight, skyLight, metallicSmoothness, textureIndex);
-            colors[faceCount * 4 + 2] = new Color32(blockLight, skyLight, metallicSmoothness, textureIndex);
-            colors[faceCount * 4 + 3] = new Color32(blockLight, skyLight, metallicSmoothness, textureIndex);
+            var textureIndex = (byte) faces[i].TextureIndex; // Must *256 in SG to get index
+            var metallic = faces[i].Metallic;
+            var smoothness = faces[i].Smoothness;
+            colors[faceCount * 4 + 0] = new Color32(0, smoothness, metallic, textureIndex);
+            colors[faceCount * 4 + 1] = new Color32(0, smoothness, metallic, textureIndex);
+            colors[faceCount * 4 + 2] = new Color32(0, smoothness, metallic, textureIndex);
+            colors[faceCount * 4 + 3] = new Color32(0, smoothness, metallic, textureIndex);
 
             faceCount++;
         }
@@ -215,15 +226,15 @@ public class WorldMesher
                voxel.z >= 0 && voxel.z < dimensions.z;
     }
 
-    private static bool IsFaceVisible(Block block, Block otherBlock)
+    private static bool IsFaceVisible(BlockState blockState, BlockState otherBlockState)
     {
         // If cube..check adjacent cube texture type
-        if (block.Type == BlockType.Cube && otherBlock.Type == BlockType.Cube)
-            return block.TextureType switch
+        if (blockState.Block.Type == BlockType.Cube && otherBlockState.Block.Type == BlockType.Cube)
+            return blockState.Block.TextureType switch
             {
-                TextureType.Opaque => otherBlock.TextureType != TextureType.Opaque,
-                TextureType.AlphaClip => otherBlock.TextureType != TextureType.Opaque,
-                TextureType.Transparent => otherBlock.TextureType != TextureType.Opaque && otherBlock.TextureType != TextureType.Transparent,
+                TextureType.Opaque => otherBlockState.Block.TextureType != TextureType.Opaque,
+                TextureType.AlphaClip => otherBlockState.Block.TextureType != TextureType.Opaque,
+                TextureType.Transparent => otherBlockState.Block.TextureType != TextureType.Opaque && otherBlockState.Block.TextureType != TextureType.Transparent,
                 _ => false
             };
         

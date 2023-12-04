@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 622a7846c39b4aedaf86b425145d112f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blueprint: {fileID: 11400000, guid: 2d6cc6e32cb9a4031a026c58cb3c404c, type: 2}
+  blueprint: {fileID: 0}
 --- !u!33 &255223400
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -331,7 +331,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1135896736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &293171068
 MonoBehaviour:
@@ -368,7 +368,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &333903079
 Transform:
   m_ObjectHideFlags: 0
@@ -377,12 +377,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 333903078}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 364680050}
+  m_Father: {fileID: 593676638}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &333903080
 MonoBehaviour:
@@ -396,8 +396,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c095dd5a6f854286ae210b9507d807b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  block: {fileID: 0}
-  states: []
+  BlockState: {fileID: 11400000, guid: 355efd19f617748dbb9eac02e5d22de1, type: 2}
 --- !u!33 &333903081
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -456,39 +455,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 74754723}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &364680049
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 364680050}
-  m_Layer: 0
-  m_Name: Models
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &364680050
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 364680049}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 333903079}
-  - {fileID: 8683061967963389150}
-  m_Father: {fileID: 1425775743}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -622,7 +588,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &545655536
 Transform:
   m_ObjectHideFlags: 0
@@ -631,14 +597,47 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 545655535}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1192396240}
   - {fileID: 2134741123}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1135896736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &593676637
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 593676638}
+  m_Layer: 0
+  m_Name: Non-solid
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &593676638
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593676637}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 333903079}
+  - {fileID: 8683061967963389150}
+  m_Father: {fileID: 1883882743}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &658181317
 GameObject:
@@ -686,16 +685,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09a146d003f841c58bd9b5e4e7f0be29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blocks:
-  - {fileID: 11400000, guid: 6d65d034cd0d24f9c80e11a84e8561a7, type: 2}
-  - {fileID: 11400000, guid: ce092dd5478b24a94869595b54368ba7, type: 2}
-  - {fileID: 11400000, guid: 7439d43a81e3b464487befcbe2e2d8f3, type: 2}
-  - {fileID: 11400000, guid: 2841a00304fa441138b8df965024ca28, type: 2}
-  - {fileID: 11400000, guid: bb840ae2509984a70b8bbede79a2f948, type: 2}
-  - {fileID: 11400000, guid: 097c5b76dcfc64e33b1f9ce0d3463df0, type: 2}
-  - {fileID: 11400000, guid: 3ab1f93d2c1274a079488246b7424435, type: 2}
-  - {fileID: 11400000, guid: 18136f631c47b416b96926d91741078a, type: 2}
-  - {fileID: 11400000, guid: 46cd37f5779d644b9b40683185c164fd, type: 2}
+  blocks: []
   BlockStates: []
   Air: {fileID: 11400000, guid: 6d65d034cd0d24f9c80e11a84e8561a7, type: 2}
   AirIndex: 0
@@ -797,404 +787,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectedItem: 0
-  selectedBlockState:
-    Block: {fileID: 0}
-    States:
-      data:
-        offset0000:
-          byte0000: 0
-          byte0008: 0
-        offset0016:
-          byte0000: 0
-          byte0008: 0
-        offset0032:
-          byte0000: 0
-          byte0008: 0
-        offset0048:
-          byte0000: 0
-          byte0008: 0
-        offset0064:
-          byte0000: 0
-          byte0008: 0
-        offset0080:
-          byte0000: 0
-          byte0008: 0
-        offset0096:
-          byte0000: 0
-          byte0008: 0
-        offset0112:
-          byte0000: 0
-          byte0008: 0
-        offset0128:
-          byte0000: 0
-          byte0008: 0
-        offset0144:
-          byte0000: 0
-          byte0008: 0
-        offset0160:
-          byte0000: 0
-          byte0008: 0
-        offset0176:
-          byte0000: 0
-          byte0008: 0
-        offset0192:
-          byte0000: 0
-          byte0008: 0
-        offset0208:
-          byte0000: 0
-          byte0008: 0
-        offset0224:
-          byte0000: 0
-          byte0008: 0
-        offset0240:
-          byte0000: 0
-          byte0008: 0
-        offset0256:
-          byte0000: 0
-          byte0008: 0
-        offset0272:
-          byte0000: 0
-          byte0008: 0
-        offset0288:
-          byte0000: 0
-          byte0008: 0
-        offset0304:
-          byte0000: 0
-          byte0008: 0
-        offset0320:
-          byte0000: 0
-          byte0008: 0
-        offset0336:
-          byte0000: 0
-          byte0008: 0
-        offset0352:
-          byte0000: 0
-          byte0008: 0
-        offset0368:
-          byte0000: 0
-          byte0008: 0
-        offset0384:
-          byte0000: 0
-          byte0008: 0
-        offset0400:
-          byte0000: 0
-          byte0008: 0
-        offset0416:
-          byte0000: 0
-          byte0008: 0
-        offset0432:
-          byte0000: 0
-          byte0008: 0
-        offset0448:
-          byte0000: 0
-          byte0008: 0
-        offset0464:
-          byte0000: 0
-          byte0008: 0
-        offset0480:
-          byte0000: 0
-          byte0008: 0
-        offset0496:
-          byte0000: 0
-          byte0008: 0
+  selectedBlockState: {fileID: 0}
   blockStates:
-  - Block: {fileID: 11400000, guid: ce092dd5478b24a94869595b54368ba7, type: 2}
-    States:
-      data:
-        offset0000:
-          byte0000: 0
-          byte0008: 0
-        offset0016:
-          byte0000: 0
-          byte0008: 0
-        offset0032:
-          byte0000: 0
-          byte0008: 0
-        offset0048:
-          byte0000: 0
-          byte0008: 0
-        offset0064:
-          byte0000: 0
-          byte0008: 0
-        offset0080:
-          byte0000: 0
-          byte0008: 0
-        offset0096:
-          byte0000: 0
-          byte0008: 0
-        offset0112:
-          byte0000: 0
-          byte0008: 0
-        offset0128:
-          byte0000: 0
-          byte0008: 0
-        offset0144:
-          byte0000: 0
-          byte0008: 0
-        offset0160:
-          byte0000: 0
-          byte0008: 0
-        offset0176:
-          byte0000: 0
-          byte0008: 0
-        offset0192:
-          byte0000: 0
-          byte0008: 0
-        offset0208:
-          byte0000: 0
-          byte0008: 0
-        offset0224:
-          byte0000: 0
-          byte0008: 0
-        offset0240:
-          byte0000: 0
-          byte0008: 0
-        offset0256:
-          byte0000: 0
-          byte0008: 0
-        offset0272:
-          byte0000: 0
-          byte0008: 0
-        offset0288:
-          byte0000: 0
-          byte0008: 0
-        offset0304:
-          byte0000: 0
-          byte0008: 0
-        offset0320:
-          byte0000: 0
-          byte0008: 0
-        offset0336:
-          byte0000: 0
-          byte0008: 0
-        offset0352:
-          byte0000: 0
-          byte0008: 0
-        offset0368:
-          byte0000: 0
-          byte0008: 0
-        offset0384:
-          byte0000: 0
-          byte0008: 0
-        offset0400:
-          byte0000: 0
-          byte0008: 0
-        offset0416:
-          byte0000: 0
-          byte0008: 0
-        offset0432:
-          byte0000: 0
-          byte0008: 0
-        offset0448:
-          byte0000: 0
-          byte0008: 0
-        offset0464:
-          byte0000: 0
-          byte0008: 0
-        offset0480:
-          byte0000: 0
-          byte0008: 0
-        offset0496:
-          byte0000: 0
-          byte0008: 0
-  - Block: {fileID: 11400000, guid: 7439d43a81e3b464487befcbe2e2d8f3, type: 2}
-    States:
-      data:
-        offset0000:
-          byte0000: 0
-          byte0008: 0
-        offset0016:
-          byte0000: 0
-          byte0008: 0
-        offset0032:
-          byte0000: 0
-          byte0008: 0
-        offset0048:
-          byte0000: 0
-          byte0008: 0
-        offset0064:
-          byte0000: 0
-          byte0008: 0
-        offset0080:
-          byte0000: 0
-          byte0008: 0
-        offset0096:
-          byte0000: 0
-          byte0008: 0
-        offset0112:
-          byte0000: 0
-          byte0008: 0
-        offset0128:
-          byte0000: 0
-          byte0008: 0
-        offset0144:
-          byte0000: 0
-          byte0008: 0
-        offset0160:
-          byte0000: 0
-          byte0008: 0
-        offset0176:
-          byte0000: 0
-          byte0008: 0
-        offset0192:
-          byte0000: 0
-          byte0008: 0
-        offset0208:
-          byte0000: 0
-          byte0008: 0
-        offset0224:
-          byte0000: 0
-          byte0008: 0
-        offset0240:
-          byte0000: 0
-          byte0008: 0
-        offset0256:
-          byte0000: 0
-          byte0008: 0
-        offset0272:
-          byte0000: 0
-          byte0008: 0
-        offset0288:
-          byte0000: 0
-          byte0008: 0
-        offset0304:
-          byte0000: 0
-          byte0008: 0
-        offset0320:
-          byte0000: 0
-          byte0008: 0
-        offset0336:
-          byte0000: 0
-          byte0008: 0
-        offset0352:
-          byte0000: 0
-          byte0008: 0
-        offset0368:
-          byte0000: 0
-          byte0008: 0
-        offset0384:
-          byte0000: 0
-          byte0008: 0
-        offset0400:
-          byte0000: 0
-          byte0008: 0
-        offset0416:
-          byte0000: 0
-          byte0008: 0
-        offset0432:
-          byte0000: 0
-          byte0008: 0
-        offset0448:
-          byte0000: 0
-          byte0008: 0
-        offset0464:
-          byte0000: 0
-          byte0008: 0
-        offset0480:
-          byte0000: 0
-          byte0008: 0
-        offset0496:
-          byte0000: 0
-          byte0008: 0
-  - Block: {fileID: 11400000, guid: 7439d43a81e3b464487befcbe2e2d8f3, type: 2}
-    States:
-      data:
-        offset0000:
-          byte0000: 0
-          byte0008: 0
-        offset0016:
-          byte0000: 0
-          byte0008: 0
-        offset0032:
-          byte0000: 0
-          byte0008: 0
-        offset0048:
-          byte0000: 0
-          byte0008: 0
-        offset0064:
-          byte0000: 0
-          byte0008: 0
-        offset0080:
-          byte0000: 0
-          byte0008: 0
-        offset0096:
-          byte0000: 0
-          byte0008: 0
-        offset0112:
-          byte0000: 0
-          byte0008: 0
-        offset0128:
-          byte0000: 0
-          byte0008: 0
-        offset0144:
-          byte0000: 0
-          byte0008: 0
-        offset0160:
-          byte0000: 0
-          byte0008: 0
-        offset0176:
-          byte0000: 0
-          byte0008: 0
-        offset0192:
-          byte0000: 0
-          byte0008: 0
-        offset0208:
-          byte0000: 0
-          byte0008: 0
-        offset0224:
-          byte0000: 0
-          byte0008: 0
-        offset0240:
-          byte0000: 0
-          byte0008: 0
-        offset0256:
-          byte0000: 0
-          byte0008: 0
-        offset0272:
-          byte0000: 0
-          byte0008: 0
-        offset0288:
-          byte0000: 0
-          byte0008: 0
-        offset0304:
-          byte0000: 0
-          byte0008: 0
-        offset0320:
-          byte0000: 0
-          byte0008: 0
-        offset0336:
-          byte0000: 0
-          byte0008: 0
-        offset0352:
-          byte0000: 0
-          byte0008: 0
-        offset0368:
-          byte0000: 0
-          byte0008: 0
-        offset0384:
-          byte0000: 0
-          byte0008: 0
-        offset0400:
-          byte0000: 0
-          byte0008: 0
-        offset0416:
-          byte0000: 0
-          byte0008: 0
-        offset0432:
-          byte0000: 0
-          byte0008: 0
-        offset0448:
-          byte0000: 0
-          byte0008: 0
-        offset0464:
-          byte0000: 0
-          byte0008: 0
-        offset0480:
-          byte0000: 0
-          byte0008: 0
-        offset0496:
-          byte0000: 0
-          byte0008: 0
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   blockPrefab: {fileID: 1130807538008078565, guid: d3bf718ff80b443839879d33d4f19485,
     type: 3}
   Rotation: 0
@@ -1432,7 +1029,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1110756814
 Transform:
   m_ObjectHideFlags: 0
@@ -1441,7 +1038,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1110756813}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1449,7 +1046,7 @@ Transform:
   - {fileID: 1076345298}
   - {fileID: 1959772072}
   - {fileID: 1259639904}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1135896736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1110756815
 MonoBehaviour:
@@ -1488,6 +1085,40 @@ MonoBehaviour:
   bobs: {fileID: 1259639904}
   bobPrefab: {fileID: 3617998227094216221, guid: 64c441fffa17647c5bf7f2b82e5e46cf,
     type: 3}
+--- !u!1 &1135896735
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1135896736}
+  m_Layer: 0
+  m_Name: Game
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1135896736
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135896735}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1110756814}
+  - {fileID: 545655536}
+  - {fileID: 293171067}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1192396235
 GameObject:
   m_ObjectHideFlags: 0
@@ -1743,7 +1374,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1207505849
 Transform:
   m_ObjectHideFlags: 0
@@ -1757,7 +1388,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1883882743}
+  m_Father: {fileID: 2078445289}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1207505851
 MeshFilter:
@@ -1820,10 +1451,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1207505848}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2f871ecfe354d0986cc5c803840701d, type: 3}
+  m_Script: {fileID: 11500000, guid: c095dd5a6f854286ae210b9507d807b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  block: {fileID: 11400000, guid: 18136f631c47b416b96926d91741078a, type: 2}
+  BlockState: {fileID: 11400000, guid: acd3f4869022b4c429c4a67ed7f334b4, type: 2}
 --- !u!1 &1259639903
 GameObject:
   m_ObjectHideFlags: 0
@@ -1901,10 +1532,41 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1883882743}
-  - {fileID: 364680050}
   - {fileID: 255223398}
   - {fileID: 863426124}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1664571268
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1664571269}
+  m_Layer: 0
+  m_Name: Solid
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1664571269
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664571268}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2078445289}
+  m_Father: {fileID: 1883882743}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1674763980
 GameObject:
@@ -2224,12 +1886,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1883882743}
   m_Layer: 0
-  m_Name: Blocks
+  m_Name: BlockStates
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1883882743
 Transform:
   m_ObjectHideFlags: 0
@@ -2243,8 +1905,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1950025677}
-  - {fileID: 1207505849}
+  - {fileID: 1664571269}
+  - {fileID: 593676638}
   m_Father: {fileID: 1425775743}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1950025676
@@ -2279,7 +1941,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1883882743}
+  m_Father: {fileID: 2078445289}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1950025679
 MeshFilter:
@@ -2342,10 +2004,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1950025676}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2f871ecfe354d0986cc5c803840701d, type: 3}
+  m_Script: {fileID: 11500000, guid: c095dd5a6f854286ae210b9507d807b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  block: {fileID: 11400000, guid: 7439d43a81e3b464487befcbe2e2d8f3, type: 2}
+  BlockState: {fileID: 11400000, guid: f60ef5efc482049c280f5791ad3eda51, type: 2}
 --- !u!1 &1959772071
 GameObject:
   m_ObjectHideFlags: 0
@@ -2376,6 +2038,39 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1110756814}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2078445288
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2078445289}
+  m_Layer: 0
+  m_Name: Opaque
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &2078445289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2078445288}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1950025677}
+  - {fileID: 1207505849}
+  m_Father: {fileID: 1664571269}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2134741122
 GameObject:
@@ -2707,10 +2402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c095dd5a6f854286ae210b9507d807b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  block: {fileID: 11400000, guid: 46cd37f5779d644b9b40683185c164fd, type: 2}
-  states:
-  - Key: y
-    Value: 90
+  BlockState: {fileID: 0}
 --- !u!33 &1064370906463942701
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2781,7 +2473,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8683061967963389150
 Transform:
   m_ObjectHideFlags: 0
@@ -2790,12 +2482,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7345238570989930907}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 364680050}
+  m_Father: {fileID: 593676638}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -2804,6 +2496,4 @@ SceneRoots:
   - {fileID: 1674763981}
   - {fileID: 658181318}
   - {fileID: 1425775743}
-  - {fileID: 1110756814}
-  - {fileID: 545655536}
-  - {fileID: 293171067}
+  - {fileID: 1135896736}

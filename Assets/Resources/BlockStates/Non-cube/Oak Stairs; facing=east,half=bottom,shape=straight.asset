@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30062217535c4f1abdb48f75b1962cb8, type: 3}
+  m_Name: Oak Stairs; facing=east,half=bottom,shape=straight
+  m_EditorClassIdentifier: 
+  Block: {fileID: 11400000, guid: 46cd37f5779d644b9b40683185c164fd, type: 2}
+  States:
+  - Key: facing
+    Value: east
+  - Key: half
+    Value: bottom
+  - Key: shape
+    Value: straight
+  Model: {fileID: 11400000, guid: 38b1efc0666984b4d94a9fdb9d144933, type: 2}

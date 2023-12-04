@@ -368,7 +368,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &333903079
 Transform:
   m_ObjectHideFlags: 0
@@ -685,15 +685,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09a146d003f841c58bd9b5e4e7f0be29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blocks: []
-  BlockStates: []
-  Air: {fileID: 11400000, guid: 6d65d034cd0d24f9c80e11a84e8561a7, type: 2}
-  AirIndex: 0
-  debug: 0
-  blockPrefab: {fileID: 6900506496657916027, guid: 633ffe94034e940918f027f13d4ff7a7,
-    type: 3}
-  modelPrefab: {fileID: 6277028117820171231, guid: e6e8a74c99602486e9ea44029f1b5ed3,
-    type: 3}
 --- !u!114 &658181320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2402,7 +2393,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c095dd5a6f854286ae210b9507d807b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BlockState: {fileID: 0}
+  BlockState: {fileID: 11400000, guid: bfb999f18937746d7a2c7cedd99830b1, type: 2}
 --- !u!33 &1064370906463942701
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2473,7 +2464,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8683061967963389150
 Transform:
   m_ObjectHideFlags: 0

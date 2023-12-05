@@ -55,8 +55,8 @@ public class Highlight : MonoBehaviour
         RaycastHit hit;
         if (!Physics.Raycast(ray, out hit)) return;
         var VoxelAdjacent = (hit.point + hit.normal * 0.05f).ToInt3();
-        var blockStateIndex = (ushort) Blocks.Instance.BlockStates.FindIndex(b => b.Equals(Toolbar.Instance.selectedBlockState));
-        World.Instance.Place(VoxelAdjacent.ToIndex(World.Instance.dims), blockStateIndex);
+        // var blockStateIndex = (ushort) Blocks.Instance.BlockStates.FindIndex(b => b.Equals(Toolbar.Instance.selectedBlockState));
+        // World.Instance.Place(VoxelAdjacent.ToIndex(World.Instance.dims), blockStateIndex);
     }
 
     public void Remove(InputAction.CallbackContext context)
@@ -92,7 +92,7 @@ public class Highlight : MonoBehaviour
                 var index = xyz.ToIndex(blueprint.dims);
                 var worldIndex = (startXyz + xyz).ToIndex(World.Instance.dims);
                 var blockIndex = World.Instance.voxels[worldIndex];
-                blueprint.blocks[index] = Blocks.Instance.blocks[blockIndex];  // TODO will need to update for rotation/palette
+                // blueprint.blocks[index] = Blocks.Instance.blocks[blockIndex];  // TODO will need to update for rotation/palette
             }
             blueprintStartXyz = default;
             

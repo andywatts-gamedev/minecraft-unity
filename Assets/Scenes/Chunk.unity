@@ -588,7 +588,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &545655536
 Transform:
   m_ObjectHideFlags: 0
@@ -649,7 +649,6 @@ GameObject:
   m_Component:
   - component: {fileID: 658181318}
   - component: {fileID: 658181320}
-  - component: {fileID: 658181319}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -673,18 +672,6 @@ Transform:
   - {fileID: 1803478079}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &658181319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 658181317}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09a146d003f841c58bd9b5e4e7f0be29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &658181320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1052,10 +1039,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dims:
-    x: 64
+    x: 16
     y: 16
-    z: 64
-  chunkType: 2
+    z: 16
+  chunkType: 1
   navMeshSurface: {fileID: 0}
   chunksParent: {fileID: 1076345298}
   chunkPrefab: {fileID: 6712863346776466921, guid: f3c140f81567d484b9c3d64a5a0d0fb6,
@@ -1076,6 +1063,11 @@ MonoBehaviour:
   bobs: {fileID: 1259639904}
   bobPrefab: {fileID: 3617998227094216221, guid: 64c441fffa17647c5bf7f2b82e5e46cf,
     type: 3}
+  debug: 0
+  BlockStates:
+  - {fileID: 11400000, guid: 5585e449de047406c897d4fc85ad85c1, type: 2}
+  - {fileID: 11400000, guid: f943c1917bfa940388bceba087ed40be, type: 2}
+  - {fileID: 11400000, guid: f60ef5efc482049c280f5791ad3eda51, type: 2}
 --- !u!1 &1135896735
 GameObject:
   m_ObjectHideFlags: 0
@@ -1091,7 +1083,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1135896736
 Transform:
   m_ObjectHideFlags: 0
@@ -1508,7 +1500,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1425775743
 Transform:
   m_ObjectHideFlags: 0

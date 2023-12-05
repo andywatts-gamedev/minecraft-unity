@@ -51,6 +51,11 @@ public class World : MonoBehaviour
     public Transform bobs;
     public GameObject bobPrefab;
 
+    [Header("BlockStates")]
+    public bool debug;
+    public List<BlockState> BlockStates;
+    
+    
     private void Awake()
     {
         _instance = this;
@@ -75,10 +80,6 @@ public class World : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-    }
-
     private void ComputeVoxels()
     {
         Debug.Log("Compute Voxels");
@@ -87,7 +88,7 @@ public class World : MonoBehaviour
         {
             var xyz = i.ToInt3(dims);
             if (chunkType == ChunkType.Flat)
-                voxels[i] = (ushort)(xyz.y < 1 ? (ushort)Blocks.Instance.BlockStates.FindIndex(b => b.Block.name == "Grass Block") : 0); 
+                voxels[i] = (ushort)(xyz.y < 1 ? (ushort)BlockStates.FindIndex(b => b.Block.name == "Grass Block") : 0); 
             
             else if (chunkType == ChunkType.Terrain)
             {
@@ -98,11 +99,11 @@ public class World : MonoBehaviour
                 var height = Mathf.PerlinNoise(xCoord, zCoord) * amplitude;
                 
                 if (xyz.y < height-1f)
-                    voxels[i] = (ushort)Blocks.Instance.BlockStates.FindIndex(b => b.Block.name == "Dirt");
+                    voxels[i] = (ushort)BlockStates.FindIndex(b => b.Block.name == "Dirt");
                 else if (xyz.y < height)
-                    voxels[i] = (ushort)Blocks.Instance.BlockStates.FindIndex(b => b.Block.name == "Grass Block");
+                    voxels[i] = (ushort)BlockStates.FindIndex(b => b.Block.name == "Grass Block");
                 else
-                    voxels[i] = (ushort)Blocks.Instance.BlockStates.FindIndex(b => b.Block.name == "Air");
+                    voxels[i] = (ushort)BlockStates.FindIndex(b => b.Block.name == "Air");
             }
             else
                 voxels[i] = 1;
@@ -140,9 +141,9 @@ public class World : MonoBehaviour
 
     public void Remove(int voxelIndex)
     {
-        voxels[voxelIndex] = Blocks.Instance.AirIndex;
-        UpdateChunkMeshes(voxelIndex);
-        OnVoxelChanged?.Invoke(voxelIndex, Blocks.Instance.AirIndex);
+        // voxels[voxelIndex] = Blocks.Instance.AirIndex;
+        // UpdateChunkMeshes(voxelIndex);
+        // OnVoxelChanged?.Invoke(voxelIndex, Blocks.Instance.AirIndex);
     }
     
     private void UpdateChunkMeshes(int voxelIndex)

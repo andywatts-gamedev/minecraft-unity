@@ -8,4 +8,5 @@ public class BlockState : ScriptableObject
     public Block Block;
     public State[] States;
     public Model Model;
+    public int Y;
 }

@@ -10,15 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30062217535c4f1abdb48f75b1962cb8, type: 3}
-  m_Name: Oak Stairs; facing=east,half=bottom,shape=straight
+  m_Name: Dirt
   m_EditorClassIdentifier: 
-  Block: {fileID: 11400000, guid: 46cd37f5779d644b9b40683185c164fd, type: 2}
-  States:
-  - Key: facing
-    Value: east
-  - Key: half
-    Value: bottom
-  - Key: shape
-    Value: straight
-  Model: {fileID: 11400000, guid: 38b1efc0666984b4d94a9fdb9d144933, type: 2}
-  Y: 90
+  Block: {fileID: 11400000, guid: ce092dd5478b24a94869595b54368ba7, type: 2}
+  States: []
+  Model: {fileID: 11400000, guid: e3bec77e0c98349409a5c0cb5ed57b92, type: 2}
+  Y: 0

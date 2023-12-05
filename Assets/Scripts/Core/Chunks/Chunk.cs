@@ -27,7 +27,7 @@ public class Chunk : MonoBehaviour
     public void UpdateChunk()
     {
         UpdateMesh();
-        UpdateModels();
+        // UpdateModels();
         
         // TODO Resolve these World methods...
         // GetComponent<NavMeshSurface>().BuildNavMesh();
@@ -37,9 +37,9 @@ public class Chunk : MonoBehaviour
 
     public void UpdateMesh()
     {
-        // var mesh = WorldMesher.Compute(dims, xyz*dims, World.Instance.dims, World.Instance.voxels);
-        // GetComponent<MeshFilter>().mesh = mesh;
-        // GetComponent<MeshCollider>().sharedMesh = mesh;
+        var mesh = WorldMesher.Compute(dims, xyz*dims, World.Instance.dims, World.Instance.voxels);
+        GetComponent<MeshFilter>().mesh = mesh;
+        GetComponent<MeshCollider>().sharedMesh = mesh;
     }
 
     private void UpdateModels()
@@ -57,7 +57,7 @@ public class Chunk : MonoBehaviour
             var voxelIndex = voxelXyz.ToIndex(World.Instance.dims);
             var voxel = World.Instance.voxels[voxelIndex];
 
-            var blockState = Blocks.Instance.BlockStates[voxel];
+            var blockState = World.Instance.BlockStates[voxel];
             if (blockState.Block.Type == BlockType.Model)
             {
                 var model = GameObject.Instantiate(modelPrefab);

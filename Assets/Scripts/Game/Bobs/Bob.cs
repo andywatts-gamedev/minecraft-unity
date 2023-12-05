@@ -93,12 +93,12 @@ public class Bob : MonoBehaviour
         {
             var blueprintXyz = new int3(x, y, z);
             var block = buildingBlueprint.blocks[blueprintXyz.ToIndex(buildingBlueprint.dims)];
-            if (block != Blocks.Instance.Air)
-            {
-                var blockId = (ushort) Blocks.Instance.blocks.FindIndex(b => b == block);
-                var voxelXyz = targetBuildingSite.ToInt3() + blueprintXyz - buildingBlueprint.dims / 2;
-                World.Instance.voxels[voxelXyz.ToIndex(World.Instance.dims)] = blockId;
-            }
+            // if (block != Blocks.Instance.Air)
+            // {
+            //     var blockId = (ushort) Blocks.Instance.blocks.FindIndex(b => b == block);
+            //     var voxelXyz = targetBuildingSite.ToInt3() + blueprintXyz - buildingBlueprint.dims / 2;
+            //     World.Instance.voxels[voxelXyz.ToIndex(World.Instance.dims)] = blockId;
+            // }
             yield return null;
         }
 

@@ -52,7 +52,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6712863346776466921}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ec99fed20f64beeaeaa73a5e5c27b86, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d091137ad7ab459d851840b26e311e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   xyz:
@@ -64,6 +64,8 @@ MonoBehaviour:
     y: 16
     z: 16
   buildingSites: []
+  models: []
+  modelPrefab: {fileID: 0}
 --- !u!23 &4040908602390057737
 MeshRenderer:
   m_ObjectHideFlags: 0

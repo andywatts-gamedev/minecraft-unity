@@ -6,18 +6,21 @@ public class Textures : MonoBehaviour
 {
     private static Textures _instance;
     public static Textures Instance => _instance;
-
     
+    [Header("Settings")]
     public int maxTextures = 32;
     
+    [Header("Textures")]
     public List<TextureObject> OpaqueTextures;
     public List<TextureObject> TransparentTextures;
     public List<TextureObject> AlphaClipTextures;
     
+    [Header("Texture Arrays")]
     public Texture2DArray opaqueTexture2DArray;
     public Texture2DArray alphaClipTexture2DArray;
     public Texture2DArray transTexture2DArray;
 
+    [Header("Materials")]
     public Material[] LitMaterials;
     public Material[] UnlitMaterials;
     

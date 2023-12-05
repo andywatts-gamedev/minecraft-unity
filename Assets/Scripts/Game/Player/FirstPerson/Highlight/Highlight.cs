@@ -55,8 +55,8 @@ public class Highlight : MonoBehaviour
         RaycastHit hit;
         if (!Physics.Raycast(ray, out hit)) return;
         var VoxelAdjacent = (hit.point + hit.normal * 0.05f).ToInt3();
-        // var blockStateIndex = (ushort) Blocks.Instance.BlockStates.FindIndex(b => b.Equals(Toolbar.Instance.selectedBlockState));
-        // World.Instance.Place(VoxelAdjacent.ToIndex(World.Instance.dims), blockStateIndex);
+        var blockStateIndex = (ushort) World.Instance.BlockStates.FindIndex(b => b.Equals(Toolbar.Instance.selectedBlockState));
+        World.Instance.Place(VoxelAdjacent.ToIndex(World.Instance.dims), blockStateIndex);
     }
 
     public void Remove(InputAction.CallbackContext context)

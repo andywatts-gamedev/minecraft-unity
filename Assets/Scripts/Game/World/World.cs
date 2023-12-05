@@ -54,7 +54,8 @@ public class World : MonoBehaviour
     [Header("BlockStates")]
     public bool debug;
     public List<BlockState> BlockStates;
-    
+
+    private ushort AirIndex;
     
     private void Awake()
     {
@@ -65,6 +66,7 @@ public class World : MonoBehaviour
     
     private void Start()
     {
+        AirIndex = (ushort)BlockStates.FindIndex(b => b.Block.Type == BlockType.Air);
         ComputeVoxels();
         
         for(var x=0; x<dims.x/chunkDims.x; x++)
@@ -101,9 +103,9 @@ public class World : MonoBehaviour
                 if (xyz.y < height-1f)
                     voxels[i] = (ushort)BlockStates.FindIndex(b => b.Block.name == "Dirt");
                 else if (xyz.y < height)
-                    voxels[i] = (ushort)BlockStates.FindIndex(b => b.Block.name == "Grass Block");
+                    voxels[i] = (ushort) BlockStates.FindIndex(b => b.Block.name == "Grass Block");
                 else
-                    voxels[i] = (ushort)BlockStates.FindIndex(b => b.Block.name == "Air");
+                    voxels[i] = AirIndex;
             }
             else
                 voxels[i] = 1;
@@ -141,29 +143,29 @@ public class World : MonoBehaviour
 
     public void Remove(int voxelIndex)
     {
-        // voxels[voxelIndex] = Blocks.Instance.AirIndex;
-        // UpdateChunkMeshes(voxelIndex);
-        // OnVoxelChanged?.Invoke(voxelIndex, Blocks.Instance.AirIndex);
+        voxels[voxelIndex] = AirIndex;
+        UpdateChunkMeshes(voxelIndex);
+        OnVoxelChanged?.Invoke(voxelIndex, AirIndex);
     }
     
     private void UpdateChunkMeshes(int voxelIndex)
     {
-        // var voxelXyz = voxelIndex.ToInt3(dims);
-        // var chunkXyz = voxelXyz / chunkDims;
-        // chunks[chunkXyz].UpdateChunk();
-        //
-        // if (voxelXyz.x % chunkDims.x == 0 && chunks.ContainsKey(chunkXyz - new int3(1, 0, 0)))
-        //     chunks[chunkXyz - new int3(1, 0, 0)].UpdateChunk();
-        // else if (voxelXyz.x % chunkDims.x == chunkDims.x - 1 && chunks.ContainsKey(chunkXyz + new int3(1, 0, 0)))
-        //     chunks[chunkXyz + new int3(1, 0, 0)].UpdateChunk();
-        // else if (voxelXyz.y % chunkDims.y == 0 && chunks.ContainsKey(chunkXyz - new int3(0, 1, 0)))
-        //     chunks[chunkXyz - new int3(0, 1, 0)].UpdateChunk();
-        // else if (voxelXyz.y % chunkDims.y == chunkDims.y - 1 && chunks.ContainsKey(chunkXyz + new int3(0, 1, 0)))
-        //     chunks[chunkXyz + new int3(0, 1, 0)].UpdateChunk();
-        // else if (voxelXyz.z % chunkDims.z == 0 && chunks.ContainsKey(chunkXyz - new int3(0, 0, 1)))
-        //     chunks[chunkXyz - new int3(0, 0, 1)].UpdateChunk();
-        // else if (voxelXyz.z % chunkDims.z == chunkDims.z - 1 && chunks.ContainsKey(chunkXyz + new int3(0, 0, 1)))
-        //     chunks[chunkXyz + new int3(0, 0, 1)].UpdateChunk();
+        var voxelXyz = voxelIndex.ToInt3(dims);
+        var chunkXyz = voxelXyz / chunkDims;
+        chunks[chunkXyz].UpdateChunk();
+        
+        if (voxelXyz.x % chunkDims.x == 0 && chunks.ContainsKey(chunkXyz - new int3(1, 0, 0)))
+            chunks[chunkXyz - new int3(1, 0, 0)].UpdateChunk();
+        else if (voxelXyz.x % chunkDims.x == chunkDims.x - 1 && chunks.ContainsKey(chunkXyz + new int3(1, 0, 0)))
+            chunks[chunkXyz + new int3(1, 0, 0)].UpdateChunk();
+        else if (voxelXyz.y % chunkDims.y == 0 && chunks.ContainsKey(chunkXyz - new int3(0, 1, 0)))
+            chunks[chunkXyz - new int3(0, 1, 0)].UpdateChunk();
+        else if (voxelXyz.y % chunkDims.y == chunkDims.y - 1 && chunks.ContainsKey(chunkXyz + new int3(0, 1, 0)))
+            chunks[chunkXyz + new int3(0, 1, 0)].UpdateChunk();
+        else if (voxelXyz.z % chunkDims.z == 0 && chunks.ContainsKey(chunkXyz - new int3(0, 0, 1)))
+            chunks[chunkXyz - new int3(0, 0, 1)].UpdateChunk();
+        else if (voxelXyz.z % chunkDims.z == chunkDims.z - 1 && chunks.ContainsKey(chunkXyz + new int3(0, 0, 1)))
+            chunks[chunkXyz + new int3(0, 0, 1)].UpdateChunk();
     }
     
 }

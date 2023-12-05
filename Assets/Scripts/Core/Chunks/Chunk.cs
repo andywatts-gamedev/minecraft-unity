@@ -19,9 +19,7 @@ public class Chunk : MonoBehaviour
     {
         models = new List<GameObject>();
         UpdateChunk();
-        GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
-        GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
-        GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
+        GetComponent<MeshRenderer>().materials = Textures.Instance.LitMaterials;
     }
 
     public void UpdateChunk()

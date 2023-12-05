@@ -20,8 +20,6 @@ public class WorldMesher
     public static Mesh Compute(int3 chunkDims, int3 chunkStart, int3 worldDims, NativeArray<ushort> voxels)
     {
         var faces = ComputeFaces(chunkDims, chunkStart, worldDims, voxels);
-        Debug.Log("---");
-        Debug.Log(faces.Length);
         return ComputeMesh(chunkDims, chunkStart, worldDims, faces);
     }
 

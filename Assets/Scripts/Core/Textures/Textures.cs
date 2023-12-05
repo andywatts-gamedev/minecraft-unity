@@ -17,6 +17,9 @@ public class Textures : MonoBehaviour
     public Texture2DArray opaqueTexture2DArray;
     public Texture2DArray alphaClipTexture2DArray;
     public Texture2DArray transTexture2DArray;
+
+    public Material[] LitMaterials;
+    public Material[] UnlitMaterials;
     
     void Awake()
     {
@@ -24,7 +27,7 @@ public class Textures : MonoBehaviour
         opaqueTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT1, false);
         alphaClipTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT5, false);
         transTexture2DArray = new Texture2DArray(16, 16, maxTextures, TextureFormat.DXT5, false);
-
+        
         for (ushort i = 0; i < OpaqueTextures.Count; i++)
         {
             OpaqueTextures[i].TextureIndex = i;
@@ -43,6 +46,13 @@ public class Textures : MonoBehaviour
             Graphics.CopyTexture(TransparentTextures[i].Texture, 0, 0, transTexture2DArray, i, 0);
         }
 
+        LitMaterials[0].SetTexture("_TextureArray", opaqueTexture2DArray);
+        LitMaterials[1].SetTexture("_TextureArray", alphaClipTexture2DArray);
+        LitMaterials[2].SetTexture("_TextureArray", transTexture2DArray);
+
+        UnlitMaterials[0].SetTexture("_TextureArray", opaqueTexture2DArray);
+        UnlitMaterials[1].SetTexture("_TextureArray", alphaClipTexture2DArray);
+        UnlitMaterials[2].SetTexture("_TextureArray", transTexture2DArray);
     }
    
 }

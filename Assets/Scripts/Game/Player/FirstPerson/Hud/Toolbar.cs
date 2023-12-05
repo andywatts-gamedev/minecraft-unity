@@ -10,17 +10,27 @@ using UnityEngine.UIElements;
 
 public class Toolbar : MonoBehaviour
 {
+    public static Toolbar Instance { get; private set; }
+    
+    
+    [Header("Selected Item")]
     public int selectedItem;
     public BlockState selectedBlockState;
+    
+    [Header("BlockStates")]
     public List<BlockState> blockStates;
-    public GameObject blockPrefab;
-    private VisualElement root;
+    
+    [Header("Toolbar Item")]
+    public GameObject ToolbarItemPrefab;
+    public GameObject ToolbarItemGO;
+
+    [Header("Settings")]
+    public int Rotation;
+    
     private UQueryBuilder<VisualElement> slots;
     private VisualElement toolbar;
-    public static Toolbar Instance { get; private set; }
-    public int Rotation;
-    public GameObject blockGO;
-
+    private VisualElement root;
+    
     private void Awake()
     {
         Instance = this;
@@ -32,17 +42,15 @@ public class Toolbar : MonoBehaviour
         toolbar = root.Q<VisualElement>("toolbar");
         slots = toolbar.Query<VisualElement>("toolbarSlot");
 
-        blockGO = Instantiate(blockPrefab);
-        var meshFilter = blockGO.GetComponent<MeshFilter>();
-        blockGO.GetComponent<MeshRenderer>().materials[0].SetTexture("_TextureArray", Textures.Instance.opaqueTexture2DArray);
-        blockGO.GetComponent<MeshRenderer>().materials[1].SetTexture("_TextureArray", Textures.Instance.alphaClipTexture2DArray);
-        blockGO.GetComponent<MeshRenderer>().materials[2].SetTexture("_TextureArray", Textures.Instance.transTexture2DArray);
+        ToolbarItemGO = Instantiate(ToolbarItemPrefab);
+        var meshFilter = ToolbarItemGO.GetComponent<MeshFilter>();
+        ToolbarItemGO.GetComponent<MeshRenderer>().materials = Textures.Instance.UnlitMaterials;
         
         // Populate toolbar
         foreach (var (blockState, slotIndex) in blockStates.Select((value, i) => (value, i)))
         {
-            // meshFilter.mesh = blockState.Block.GenerateMesh();
-            var texture = Render3D.Instance.Snapshot(blockGO);
+            meshFilter.mesh = blockState.ComputeMesh();
+            var texture = Render3D.Instance.Snapshot(ToolbarItemGO);
             var slot = slots.AtIndex(slotIndex);
             var image = new Image();
             image.image = texture; 
@@ -105,9 +113,9 @@ public class Toolbar : MonoBehaviour
     {
         if (!context.started) return;
         Rotation = (Rotation + 1) % 4;
-        var meshFilter = blockGO.GetComponent<MeshFilter>();
-        // meshFilter.mesh = selectedBlockState.Block.GenerateMesh();
-        var texture = Render3D.Instance.Snapshot(blockGO);
+        var meshFilter = ToolbarItemGO.GetComponent<MeshFilter>();
+        meshFilter.mesh = selectedBlockState.ComputeMesh();
+        var texture = Render3D.Instance.Snapshot(ToolbarItemGO);
         SetItem(selectedItem, texture);
     }
 }
